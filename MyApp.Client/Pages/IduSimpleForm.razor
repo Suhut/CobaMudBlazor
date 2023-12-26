@@ -1,0 +1,168 @@
+﻿@page "/idu-simple-form"
+
+<PageTitle>IDU Simple Form</PageTitle>
+
+<MudText Typo="Typo.h3" GutterBottom="true">IDU Simple Form</MudText>
+@using System.ComponentModel.DataAnnotations
+@using FluentValidation
+@using System.Linq
+
+<MudForm Model=@_model @ref="@form" Validation="@(testValidator.ValidateValue)">
+    <DataAnnotationsValidator />
+    <MudGrid>
+        <MudItem xs="12" sm="12">
+            <MudCard>
+                <MudCardContent>
+
+                    <MudTextField Label="IduTextField" HelperText="helper text IduTextField"
+                                  @bind-Value="_model.IduTextField" For="@(() => _model.IduTextField)" />
+
+                    <MudTextField Label="IduTextFieldEmail" Class="mt-3"
+                                  @bind-Value="_model.IduTextFieldEmail" For="@(() => _model.IduTextFieldEmail)" />
+
+                    <MudTextField Label="IduTextFieldPassword" HelperText="Helper text IduTextFieldEmail" Class="mt-3"
+                                  @bind-Value="_model.IduTextFieldPassword" For="@(() => _model.IduTextFieldPassword)" InputType="InputType.Password" />
+
+                    <MudNumericField @bind-Value="_model.IduNumericFieldInt" For="@(() => _model.IduNumericFieldInt)" T="int?" Label="IduNumericFieldInt" Format="N2" Variant="Variant.Text" Step="0" />
+
+                    <MudSelect T="string" Label="IduSelectSingle" @bind-Value="_model.IduSelectSingle" For="@(() => _model.IduSelectSingle)" Clearable>
+                        @foreach (var itemSelect in selectSources)
+                        {
+                            <MudSelectItem T="string" Value="@(itemSelect.Value)">@itemSelect.Text</MudSelectItem>
+                        }
+                    </MudSelect>
+
+                    <MudSelect T="string" Label="IduSelectMulti" MultiSelection="true" @bind-Value="_model.IduSelectMulti_" @bind-SelectedValues="_model.IduSelectMulti" For="@(() => _model.IduSelectMulti_)" MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))" Clearable>
+                        @foreach (var itemSelect in selectSources)
+                        {
+                            <MudSelectItem T="string" Value="@(itemSelect.Value)">@($"{itemSelect.Value} - {itemSelect.Text}")</MudSelectItem>
+                        }
+                    </MudSelect>
+
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Button" Variant="Variant.Filled" Color="Color.Primary" OnClick="OnClickRegister">Register</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" sm="12">
+            <MudText Typo="Typo.body2" Align="Align.Center">
+                Fill out the form correctly to see the success message.
+            </MudText>
+        </MudItem>
+    </MudGrid>
+</MudForm>
+
+
+@code {
+
+    [Inject] ISnackbar Snackbar { get; set; }
+
+    // EditContext _editContext;
+    SimpleFormModel _model = new SimpleFormModel();
+    bool success;
+    MudForm form;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
+
+    private async Task OnClickRegister()
+    { 
+        await form.Validate();
+
+        if (form.IsValid)
+        {
+            Snackbar.Add("Submited!");
+        } 
+    }
+
+
+
+    public class SimpleFormModel
+    {
+        public string? IduTextField { get; set; }
+
+        public string? IduTextFieldEmail { get; set; }
+
+        // [Required]
+        public string? IduTextFieldPassword { get; set; }
+
+        // [Required]
+        public int? IduNumericFieldInt { get; set; }
+
+        // [Required]
+        public string? IduSelectSingle { get; set; }
+
+        // [Required]
+        public string? IduSelectMulti_ { get; set; }
+
+        // [Required]
+        public IEnumerable<string?> IduSelectMulti { get; set; } = Enumerable.Empty<string>();
+
+    }
+
+    TestModelFluentValidator testValidator = new TestModelFluentValidator();
+
+    private selectModel[] selectSources =
+    {
+        new selectModel{Value="C01",Text="Satu"},
+        new selectModel{Value="C02",Text="Dua"},
+        new selectModel{Value="C03",Text="Tiga"},
+        new selectModel{Value="C04",Text="Empat"},
+        new selectModel{Value="C05",Text="Lima"},
+    };
+
+    public class selectModel
+    {
+        public string? Value { get; set; }
+        public string? Text { get; set; }
+    }
+
+    private string GetMultiSelectionText(List<string> selectedValues)
+    {
+        var texts = (from T0 in selectedValues
+                     join T1 in selectSources on T0 equals T1.Value
+                     orderby T0 ascending
+                     select T1.Text
+                     ).ToList()
+     ;
+
+        // List<string?> texts = selectedValues.OrderBy(p=>p)
+        //                        .Select(value =>
+        //                            selectSources.FirstOrDefault(model => _model.Value == value)?.Text)
+        //                        .ToList();
+
+        return $"{string.Join(", ", texts.Select(x => x))}";
+    }
+
+    public class TestModelFluentValidator : AbstractValidator<SimpleFormModel>
+    {
+        public TestModelFluentValidator()
+        {
+
+            RuleFor(x => x.IduTextField).NotEmpty();
+            RuleFor(x => x.IduTextFieldEmail).NotEmpty().EmailAddress();
+            RuleFor(x => x.IduTextFieldPassword).NotEmpty();
+            RuleFor(x => x.IduNumericFieldInt).NotEmpty();
+            RuleFor(x => x.IduSelectSingle).NotEmpty();
+            RuleFor(x => x.IduSelectMulti).NotEmpty();
+
+            RuleFor(x => x.IduSelectMulti).Must((parent, property) => property.Contains("C01"))
+            .WithMessage("C01 not found in those names!").NotEmpty();
+        } 
+
+        public Func<object, string, Task<IEnumerable<string>>> ValidateValue => async (model, propertyName) =>
+        {
+            propertyName = propertyName == nameof(_model.IduSelectMulti_) ? nameof(_model.IduSelectMulti) : propertyName;
+
+            var result = await ValidateAsync(ValidationContext<SimpleFormModel>.CreateWithOptions((SimpleFormModel)model, x => x.IncludeProperties(propertyName)));
+            if (result.IsValid)
+                return Array.Empty<string>();
+            return result.Errors.Select(e => e.ErrorMessage);
+        };
+    }
+
+
+}
