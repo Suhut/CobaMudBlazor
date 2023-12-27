@@ -35,7 +35,7 @@ var summaries = new[]
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
 
-app.MapGet("/weatherforecast", () =>
+app.MapGet("/weatherforecastv01", () =>
 {
     GridDataRequestDto request = new();
     request.Page = 0;
@@ -58,14 +58,11 @@ app.MapGet("/weatherforecast", () =>
 
     return result;
 })
-.WithName("GetWeatherForecast")
+.WithName("GetWeatherForecastv01")
 .WithOpenApi();
 
-app.MapPost("/weatherforecastapi", (GridDataRequestDto request) =>
-{
-    //GridDataRequestDto request = new();
-    //request.Page = 0;
-    //request.PageSize = 10;
+app.MapPost("/weatherforecastv02", (GridDataRequestDto request) =>
+{ 
 
     WeatherListDto result = new();
 
@@ -87,7 +84,33 @@ app.MapPost("/weatherforecastapi", (GridDataRequestDto request) =>
 
     return result;
 })
-.WithName("GetWeatherForecastApi")
+.WithName("GetWeatherForecastv02")
+.WithOpenApi();
+
+app.MapPost("/weatherforecastv03", (GridDataRequestDto request) =>
+{
+
+    WeatherListDto result = new();
+
+    var items = Enumerable.Range(1, 1000).Select(index =>
+        new WeatherListItemDto
+        {
+            Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+            TemperatureC = Random.Shared.Next(-20, 55),
+            Summary = summaries[Random.Shared.Next(summaries.Length)]
+        }
+        )
+        .ToList();
+
+    result.ItemTotalCount = items.Count;
+    int pageNumber = request.Page;
+    int pageSize = request.PageSize;
+
+    result.Items = items.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+
+    return result;
+})
+.WithName("GetWeatherForecastv03")
 .WithOpenApi();
 
 

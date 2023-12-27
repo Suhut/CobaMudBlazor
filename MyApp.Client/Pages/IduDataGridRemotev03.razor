@@ -1,4 +1,4 @@
-﻿@page "/idu-datagrid-remote-api"
+﻿@page "/idu-datagrid-remote-v03"
 
 @using System.Net.Http.Json
 @using System.Text.Json.Serialization
@@ -7,12 +7,12 @@
 @inject HttpClient httpClient
 
 
-<PageTitle>IDU DataGrid Remote API</PageTitle>
+<PageTitle>IDU DataGrid Remote v02</PageTitle>
 
-<MudText Typo="Typo.h3" GutterBottom="true">IDU DataGrid Remote API</MudText>
+<MudText Typo="Typo.h3" GutterBottom="true">IDU DataGrid Remote v02</MudText>
 
 <MudDataGrid T="WeatherListItemDto"
-             ServerData="@(new Func<GridState<WeatherListItemDto>, Task<GridData<WeatherListItemDto>>>(ServerReload))"
+             ServerData="@(new Func<GridState<WeatherListItemDto>, Task<GridData<WeatherListItemDto>>>(ServerReload))" 
              SortMode="@_sortMode">
 
     <Columns>
@@ -29,11 +29,7 @@
 @code { 
     private bool _sortNameByLength;
     private SortMode _sortMode = SortMode.Multiple;
-
-    private int _totalItems;
-    private int _currentPage;
-    private IEnumerable<WeatherListItemDto> _pagedData;
-
+     
     // custom sort by name length
     private Func<WeatherListItemDto, object> _sortBy => x =>
     {
@@ -49,7 +45,7 @@
     private async Task<WeatherListDto> GetWeatherList(GridDataRequestDto requestDto)
     {
 
-        var response = await httpClient.PostAsJsonAsync<GridDataRequestDto>("https://localhost:7117/weatherforecastapi", requestDto);
+        var response = await httpClient.PostAsJsonAsync<GridDataRequestDto>("https://localhost:7117/weatherforecastv03", requestDto);
 
         var responseContent = response.Content.ReadAsStringAsync().Result;
 
@@ -60,17 +56,11 @@
 
         return System.Text.Json.JsonSerializer.Deserialize<WeatherListDto>(responseContent, options);
 
-    }
+    } 
 
     private async Task<GridData<WeatherListItemDto>> ServerReload(GridState<WeatherListItemDto> state)
-    {
-        await LoadData(state.Page, state.PageSize, state);
+    { 
 
-        return new GridData<WeatherListItemDto> { TotalItems = _totalItems, Items = _pagedData };
-    }
-
-    private async Task LoadData(int pageNumber, int pageSize, GridState<WeatherListItemDto> state)
-    {
         if (state.SortDefinitions.Any())
         {
             foreach (var item in state.SortDefinitions)
@@ -80,14 +70,14 @@
         }
 
         StateHasChanged();
-         
-        GridDataRequestDto requestDto = new GridDataRequestDto { Page = pageNumber, PageSize = pageSize };
-        var result = await GetWeatherList(requestDto); 
 
-        _totalItems = result.ItemTotalCount;
-        _currentPage = pageNumber;
-        _pagedData = result.Items;
+        GridDataRequestDto requestDto = new GridDataRequestDto { Page = state.Page, PageSize = state.PageSize };
+        var result = await GetWeatherList(requestDto);
+
+        return new GridData<WeatherListItemDto> { TotalItems = result.ItemTotalCount, Items = result.Items };
     }
+
+   
 
 
 
