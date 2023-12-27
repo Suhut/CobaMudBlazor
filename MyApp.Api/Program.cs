@@ -53,7 +53,7 @@ app.MapGet("/weatherforecast", () =>
         .ToList();
 
     result.ItemTotalCount = items.Count;
-    result.Items = items.Skip(request.PageSize* request.PageSize).Take(request.PageSize).ToList();
+    result.Items = items;//.Skip(request.PageSize* request.PageSize).Take(request.PageSize).ToList();
 
     return result;
 })
