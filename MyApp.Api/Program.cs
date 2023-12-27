@@ -1,5 +1,6 @@
 using MyApp.Shared;
 using System.Linq;
+using System.Xml.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,6 +60,37 @@ app.MapGet("/weatherforecast", () =>
 })
 .WithName("GetWeatherForecast")
 .WithOpenApi();
+
+app.MapPost("/weatherforecastapi", (GridDataRequestDto request) =>
+{
+    //GridDataRequestDto request = new();
+    //request.Page = 0;
+    //request.PageSize = 10;
+
+    WeatherListDto result = new();
+
+    var items = Enumerable.Range(1, 1000).Select(index =>
+        new WeatherListItemDto
+        {
+            Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+            TemperatureC = Random.Shared.Next(-20, 55),
+            Summary = summaries[Random.Shared.Next(summaries.Length)]
+        }
+        )
+        .ToList();
+
+    result.ItemTotalCount = items.Count;
+    int pageNumber = request.Page;
+    int pageSize = request.PageSize;
+
+    result.Items = items.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+
+    return result;
+})
+.WithName("GetWeatherForecastApi")
+.WithOpenApi();
+
+
 
 app.UseCors("default");
 
