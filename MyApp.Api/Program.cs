@@ -1,3 +1,4 @@
+using MudBlazor;
 using MyApp.Shared;
 using System.Linq;
 using System.Xml.Linq;
@@ -87,7 +88,7 @@ app.MapPost("/weatherforecastv02", (GridDataRequestDto request) =>
 .WithName("GetWeatherForecastv02")
 .WithOpenApi();
 
-app.MapPost("/weatherforecastv03", (GridDataRequestDto request) =>
+app.MapPost("/weatherforecastv03", (GridDataRequestDtov03 request) =>
 {
 
     WeatherListDto result = new();

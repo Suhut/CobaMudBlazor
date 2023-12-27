@@ -13,7 +13,9 @@
 
 <MudDataGrid T="WeatherListItemDto"
              ServerData="@(new Func<GridState<WeatherListItemDto>, Task<GridData<WeatherListItemDto>>>(ServerReload))" 
-             SortMode="@_sortMode">
+             SortMode="@_sortMode"
+             Filterable
+             FilterMode="DataGridFilterMode.Simple">
 
     <Columns>
         <PropertyColumn Property="x => x.Date" />
@@ -26,10 +28,10 @@
     </PagerContent>
 </MudDataGrid> 
 
-@code { 
+@code {
     private bool _sortNameByLength;
     private SortMode _sortMode = SortMode.Multiple;
-     
+
     // custom sort by name length
     private Func<WeatherListItemDto, object> _sortBy => x =>
     {
@@ -40,12 +42,27 @@
     };
 
     private string SortInfo = string.Empty; 
-    
 
-    private async Task<WeatherListDto> GetWeatherList(GridDataRequestDto requestDto)
+
+    private async Task<WeatherListDto> GetWeatherList(GridState<WeatherListItemDto> state)
     {
+        GridDataRequestDtov03 requestDto = new();
+        requestDto.PageSize = state.PageSize;
+        requestDto.Page = state.Page;
+        requestDto.SortDefinitions = [];
+        requestDto.FilterDefinitions = [];
 
-        var response = await httpClient.PostAsJsonAsync<GridDataRequestDto>("https://localhost:7117/weatherforecastv03", requestDto);
+        foreach (var item in state.SortDefinitions)
+        {
+            requestDto.SortDefinitions.Add(new GridDataRequestSortDefinitionsv03 { SortBy = item.SortBy, Descending = item.Descending });
+        }
+
+        foreach (var item in state.FilterDefinitions)
+        { 
+            requestDto.FilterDefinitions.Add(new GridDataRequestFilterDefinitionsv03 { FieldName = item.Column.PropertyName, Operator = item.Operator, Value = item.Value });
+        }
+
+        var response = await httpClient.PostAsJsonAsync<GridDataRequestDtov03>("https://localhost:7117/weatherforecastv03", requestDto);
 
         var responseContent = response.Content.ReadAsStringAsync().Result;
 
@@ -71,8 +88,8 @@
 
         StateHasChanged();
 
-        GridDataRequestDto requestDto = new GridDataRequestDto { Page = state.Page, PageSize = state.PageSize };
-        var result = await GetWeatherList(requestDto);
+        // GridDataRequestDto requestDto = new GridDataRequestDto { Page = state.Page, PageSize = state.PageSize };
+        var result = await GetWeatherList(state);
 
         return new GridData<WeatherListItemDto> { TotalItems = result.ItemTotalCount, Items = result.Items };
     }
