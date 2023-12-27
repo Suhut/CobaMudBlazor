@@ -52,6 +52,10 @@
                         } 
                     </MudRadioGroup>
  
+                    <MudAutocomplete T="selectModel" ToStringFunc="@(state => state.Text)" For="@(() => _model.IduAutoComplete)" Label="IduAutoComplete" @bind-Value="_model.IduAutoComplete" SearchFunc="@IduAutoCompleteSearch"
+                         ResetValueOnEmptyText 
+                         CoerceText CoerceValue />
+
                     <MudTextField T="string" ReadOnly Label="IduCflSingle" @bind-Value="_model.IduCflSingle" For="@(() => _model.IduCflSingle)" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" OnAdornmentClick="OnAdornmentClickIduCflSingle" Clearable />
 
                     <MudTextField T="string" ReadOnly Label="IduCflMulti" @bind-Value="_model.IduCflMulti_" For="@(() => _model.IduCflMulti_)" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" OnAdornmentClick="OnAdornmentClickIduCflMulti" Clearable />
@@ -74,7 +78,7 @@
 
 @code {
 
-   
+
 
     [Inject] ISnackbar Snackbar { get; set; }
 
@@ -97,6 +101,7 @@
             RuleFor(x => x.IduNumericFieldDecimal).NotEmpty();
             RuleFor(x => x.IduSelectSingle).NotEmpty();
             RuleFor(x => x.IduSelectMulti).NotEmpty();
+            RuleFor(x => x.IduAutoComplete).NotEmpty();
             RuleFor(x => x.IduRadio).NotEmpty(); 
             RuleFor(x => x.IduCflSingle).NotEmpty();
             RuleFor(x => x.IduCflMulti).NotEmpty();
@@ -110,11 +115,11 @@
         {
             // propertyName = propertyName == nameof(_model.IduSelectMulti_) ? nameof(_model.IduSelectMulti) : propertyName;
             propertyName = propertyName switch
-                                {
-                                    nameof(_model.IduSelectMulti_) => nameof(_model.IduSelectMulti),
-                                    nameof(_model.IduCflMulti) => nameof(_model.IduCflMulti),
-                                    _ => propertyName 
-                                };
+            {
+                nameof(_model.IduSelectMulti_) => nameof(_model.IduSelectMulti),
+                nameof(_model.IduCflMulti) => nameof(_model.IduCflMulti),
+                _ => propertyName 
+            };
 
             var result = await ValidateAsync(ValidationContext<SimpleFormModel>.CreateWithOptions((SimpleFormModel)model, x => x.IncludeProperties(propertyName)));
             if (result.IsValid)
@@ -166,6 +171,15 @@
         _model.IduCflMulti_ = "C01, C02";
     }
 
+    private async Task<IEnumerable<selectModel>> IduAutoCompleteSearch(string value)
+    {   
+        if (string.IsNullOrEmpty(value))
+        { 
+            return selectSources;
+        }
+        return selectSources.Where(x => x.Text.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+
 
     #endregion
 
@@ -190,6 +204,8 @@
         public string? IduSelectMulti_ { get; set; }
 
         public IEnumerable<string?> IduSelectMulti { get; set; } = Enumerable.Empty<string>();
+
+        public selectModel? IduAutoComplete { get; set; }
 
         public string? IduRadio { get; set; }
 
