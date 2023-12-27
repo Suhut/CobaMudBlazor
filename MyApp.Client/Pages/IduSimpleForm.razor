@@ -21,9 +21,7 @@
                                   @bind-Value="_model.IduTextFieldEmail" For="@(() => _model.IduTextFieldEmail)" />
 
                     <MudTextField Label="IduTextFieldPassword" HelperText="Helper text IduTextFieldEmail" Class="mt-3"
-                                  @bind-Value="_model.IduTextFieldPassword" For="@(() => _model.IduTextFieldPassword)" InputType="InputType.Password" />
-
-                    @* <MudTextField T="string" Label="Outlined" Variant="Variant.Outlined" Text="@sampleText" Lines="3" /> *@
+                                  @bind-Value="_model.IduTextFieldPassword" For="@(() => _model.IduTextFieldPassword)" InputType="InputType.Password" /> 
 
                     <MudTextField Label="IduTextFieldMultiline" HelperText="helper text IduTextFieldMultiline"
                                   @bind-Value="_model.IduTextFieldMultiline" For="@(() => _model.IduTextFieldMultiline)" Lines="5" />
@@ -53,11 +51,15 @@
                             <MudRadio  Option="@(itemSelect.Value)" >@($"{itemSelect.Value} - {itemSelect.Text}")</MudRadio>
                         } 
                     </MudRadioGroup>
+ 
+                    <MudTextField T="string" ReadOnly Label="IduCflSingle" @bind-Value="_model.IduCflSingle" For="@(() => _model.IduCflSingle)" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" OnAdornmentClick="OnAdornmentClickIduCflSingle" Clearable />
 
+                    <MudTextField T="string" ReadOnly Label="IduCflMulti" @bind-Value="_model.IduCflMulti_" For="@(() => _model.IduCflMulti_)" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" OnAdornmentClick="OnAdornmentClickIduCflSingle" Clearable />
+
+                
                 </MudCardContent>
                 <MudCardActions>
-                    <MudButton ButtonType="ButtonType.Button" Variant="Variant.Filled" Color="Color.Primary" OnClick="OnClickRegister">Register</MudButton>
-                    @* <MudText>Selected Option 2: @_model.IduRadio</MudText> *@
+                    <MudButton ButtonType="ButtonType.Button" Variant="Variant.Filled" Color="Color.Primary" OnClick="OnClickRegister">Register</MudButton> 
                 </MudCardActions>
             </MudCard>
         </MudItem>
@@ -71,6 +73,13 @@
 
 
 @code {
+
+    private void OnAdornmentClickIduCflSingle()
+    { 
+        Snackbar.Add("OnAdornmentClickIduCflSingle!");
+        _model.IduCflSingle = "123";
+    }
+
     [Inject] ISnackbar Snackbar { get; set; }
 
     MudForm _form;
@@ -92,7 +101,9 @@
             RuleFor(x => x.IduNumericFieldDecimal).NotEmpty();
             RuleFor(x => x.IduSelectSingle).NotEmpty();
             RuleFor(x => x.IduSelectMulti).NotEmpty();
-            RuleFor(x => x.IduRadio).NotEmpty();
+            RuleFor(x => x.IduRadio).NotEmpty(); 
+            RuleFor(x => x.IduCflSingle).NotEmpty();
+            RuleFor(x => x.IduCflMulti).NotEmpty();
 
             RuleFor(x => x.IduSelectMulti).Must((parent, property) => property.Contains("C01"))
             .WithMessage("C01 not found in those names!").NotEmpty();
@@ -100,7 +111,13 @@
 
         public Func<object, string, Task<IEnumerable<string>>> ValidateValue => async (model, propertyName) =>
         {
-            propertyName = propertyName == nameof(_model.IduSelectMulti_) ? nameof(_model.IduSelectMulti) : propertyName;
+            // propertyName = propertyName == nameof(_model.IduSelectMulti_) ? nameof(_model.IduSelectMulti) : propertyName;
+            propertyName = propertyName switch
+                                {
+                                    nameof(_model.IduSelectMulti_) => nameof(_model.IduSelectMulti),
+                                    nameof(_model.IduCflMulti) => nameof(_model.IduCflMulti),
+                                    _ => propertyName 
+                                };
 
             var result = await ValidateAsync(ValidationContext<SimpleFormModel>.CreateWithOptions((SimpleFormModel)model, x => x.IncludeProperties(propertyName)));
             if (result.IsValid)
@@ -165,6 +182,12 @@
         public IEnumerable<string?> IduSelectMulti { get; set; } = Enumerable.Empty<string>();
 
         public string? IduRadio { get; set; }
+
+        public string? IduCflSingle { get; set; }
+
+        public string? IduCflMulti_ { get; set; }
+
+        public IEnumerable<string?> IduCflMulti { get; set; } = Enumerable.Empty<string>();
 
     }
 
