@@ -6,9 +6,9 @@
 @using System.ComponentModel.DataAnnotations
 @using FluentValidation
 @using System.Linq
+@using System.Globalization
 
-<MudForm Model=@_model @ref="@form" Validation="@(testValidator.ValidateValue)">
-    <DataAnnotationsValidator />
+<MudForm Model=@_model @ref="@_form" Validation="@(_formValidator.ValidateValue)"> 
     <MudGrid>
         <MudItem xs="12" sm="12">
             <MudCard>
@@ -22,8 +22,11 @@
 
                     <MudTextField Label="IduTextFieldPassword" HelperText="Helper text IduTextFieldEmail" Class="mt-3"
                                   @bind-Value="_model.IduTextFieldPassword" For="@(() => _model.IduTextFieldPassword)" InputType="InputType.Password" />
+                                   
+                    <MudNumericField Converter=@IntConverter.NullableIntConverter Label="IduNumericFieldInt" T="int?" @bind-Value="_model.IduNumericFieldInt" For="@(() => _model.IduNumericFieldInt)" />
 
-                    <MudNumericField @bind-Value="_model.IduNumericFieldInt" For="@(() => _model.IduNumericFieldInt)" T="int?" Label="IduNumericFieldInt" Format="N2" Variant="Variant.Text" Step="0" />
+                    <MudNumericField Label="IduNumericFieldDecimal" Format="#,###.00" T="decimal?" @bind-Value="_model.IduNumericFieldDecimal" For="@(() => _model.IduNumericFieldDecimal)" />
+
 
                     <MudSelect T="string" Label="IduSelectSingle" @bind-Value="_model.IduSelectSingle" For="@(() => _model.IduSelectSingle)" Clearable>
                         @foreach (var itemSelect in selectSources)
@@ -32,16 +35,24 @@
                         }
                     </MudSelect>
 
-                    <MudSelect T="string" Label="IduSelectMulti" MultiSelection="true" @bind-Value="_model.IduSelectMulti_" @bind-SelectedValues="_model.IduSelectMulti" For="@(() => _model.IduSelectMulti_)" MultiSelectionTextFunc="@(new Func<List<string>, string>(GetMultiSelectionText))" Clearable>
+                    <MudSelect T="string" Label="IduSelectMulti" MultiSelection="true" @bind-Value="_model.IduSelectMulti_" @bind-SelectedValues="_model.IduSelectMulti" For="@(() => _model.IduSelectMulti_)" MultiSelectionTextFunc="@(new Func<List<string>, string>(IduSelectMultiMultiSelectionTextFunc))" Clearable>
                         @foreach (var itemSelect in selectSources)
                         {
                             <MudSelectItem T="string" Value="@(itemSelect.Value)">@($"{itemSelect.Value} - {itemSelect.Text}")</MudSelectItem>
                         }
                     </MudSelect>
 
+                    <MudRadioGroup Label="IduRadio" T="string" @bind-SelectedOption="_model.IduRadio" For="@(() => _model.IduRadio)">
+                        @foreach (var itemSelect in selectSources)
+                        {
+                            <MudRadio  Option="@(itemSelect.Value)" >@($"{itemSelect.Value} - {itemSelect.Text}")</MudRadio>
+                        } 
+                    </MudRadioGroup>
+
                 </MudCardContent>
                 <MudCardActions>
                     <MudButton ButtonType="ButtonType.Button" Variant="Variant.Filled" Color="Color.Primary" OnClick="OnClickRegister">Register</MudButton>
+                    @* <MudText>Selected Option 2: @_model.IduRadio</MudText> *@
                 </MudCardActions>
             </MudCard>
         </MudItem>
@@ -55,99 +66,27 @@
 
 
 @code {
-
     [Inject] ISnackbar Snackbar { get; set; }
 
-    // EditContext _editContext;
-    SimpleFormModel _model = new SimpleFormModel();
-    bool success;
-    MudForm form;
+    MudForm _form;
+    SimpleFormModel _model = new();
+    FormFluentValidator _formValidator = new(); 
 
-    protected override void OnInitialized()
+    #region FormValidator
+
+    public class FormFluentValidator : AbstractValidator<SimpleFormModel>
     {
-        base.OnInitialized();
-    }
-
-    private async Task OnClickRegister()
-    { 
-        await form.Validate();
-
-        if (form.IsValid)
-        {
-            Snackbar.Add("Submited!");
-        } 
-    }
-
-
-
-    public class SimpleFormModel
-    {
-        public string? IduTextField { get; set; }
-
-        public string? IduTextFieldEmail { get; set; }
-
-        // [Required]
-        public string? IduTextFieldPassword { get; set; }
-
-        // [Required]
-        public int? IduNumericFieldInt { get; set; }
-
-        // [Required]
-        public string? IduSelectSingle { get; set; }
-
-        // [Required]
-        public string? IduSelectMulti_ { get; set; }
-
-        // [Required]
-        public IEnumerable<string?> IduSelectMulti { get; set; } = Enumerable.Empty<string>();
-
-    }
-
-    TestModelFluentValidator testValidator = new TestModelFluentValidator();
-
-    private selectModel[] selectSources =
-    {
-        new selectModel{Value="C01",Text="Satu"},
-        new selectModel{Value="C02",Text="Dua"},
-        new selectModel{Value="C03",Text="Tiga"},
-        new selectModel{Value="C04",Text="Empat"},
-        new selectModel{Value="C05",Text="Lima"},
-    };
-
-    public class selectModel
-    {
-        public string? Value { get; set; }
-        public string? Text { get; set; }
-    }
-
-    private string GetMultiSelectionText(List<string> selectedValues)
-    {
-        var texts = (from T0 in selectedValues
-                     join T1 in selectSources on T0 equals T1.Value
-                     orderby T0 ascending
-                     select T1.Text
-                     ).ToList()
-     ;
-
-        // List<string?> texts = selectedValues.OrderBy(p=>p)
-        //                        .Select(value =>
-        //                            selectSources.FirstOrDefault(model => _model.Value == value)?.Text)
-        //                        .ToList();
-
-        return $"{string.Join(", ", texts.Select(x => x))}";
-    }
-
-    public class TestModelFluentValidator : AbstractValidator<SimpleFormModel>
-    {
-        public TestModelFluentValidator()
+        public FormFluentValidator()
         {
 
             RuleFor(x => x.IduTextField).NotEmpty();
             RuleFor(x => x.IduTextFieldEmail).NotEmpty().EmailAddress();
             RuleFor(x => x.IduTextFieldPassword).NotEmpty();
             RuleFor(x => x.IduNumericFieldInt).NotEmpty();
+            RuleFor(x => x.IduNumericFieldDecimal).NotEmpty();
             RuleFor(x => x.IduSelectSingle).NotEmpty();
             RuleFor(x => x.IduSelectMulti).NotEmpty();
+            RuleFor(x => x.IduRadio).NotEmpty();
 
             RuleFor(x => x.IduSelectMulti).Must((parent, property) => property.Contains("C01"))
             .WithMessage("C01 not found in those names!").NotEmpty();
@@ -164,5 +103,109 @@
         };
     }
 
+    #endregion
+
+    #region Events
+
+    private async Task OnClickRegister()
+    { 
+        await _form.Validate();
+
+        if (_form.IsValid)
+        {
+            Snackbar.Add("Submited!");
+        } 
+    } 
+
+    private string IduSelectMultiMultiSelectionTextFunc(List<string> selectedValues)
+    {
+        var texts = (from T0 in selectedValues
+                     join T1 in selectSources on T0 equals T1.Value
+                     orderby T0 ascending
+                     select T1.Text
+                     ).ToList()
+     ;
+
+        // List<string?> texts = selectedValues.OrderBy(p=>p)
+        //                        .Select(value =>
+        //                            selectSources.FirstOrDefault(model => _model.Value == value)?.Text)
+        //                        .ToList();
+
+        return $"{string.Join(", ", texts.Select(x => x))}";
+    }
+
+    #endregion
+
+    #region FormModel
+
+    public class SimpleFormModel
+    {
+        public string? IduTextField { get; set; }
+
+        public string? IduTextFieldEmail { get; set; }
+
+        public string? IduTextFieldPassword { get; set; }
+
+        public int? IduNumericFieldInt { get; set; }
+
+        public decimal? IduNumericFieldDecimal { get; set; }
+
+        public string? IduSelectSingle { get; set; }
+
+        public string? IduSelectMulti_ { get; set; }
+
+        public IEnumerable<string?> IduSelectMulti { get; set; } = Enumerable.Empty<string>();
+
+        public string? IduRadio { get; set; }
+
+    }
+
+    #endregion
+
+    #region DataSources
+
+    private selectModel[] selectSources =
+    {
+        new selectModel{Value="C01",Text="Satu"},
+        new selectModel{Value="C02",Text="Dua"},
+        new selectModel{Value="C03",Text="Tiga"},
+        new selectModel{Value="C04",Text="Empat"},
+        new selectModel{Value="C05",Text="Lima"},
+    };
+
+    public class selectModel
+    {
+        public string? Value { get; set; }
+        public string? Text { get; set; }
+    }
+    #endregion 
+
+
+    public static class IntConverter
+    {
+        public static Converter<int?> NullableIntConverter = new Converter<int?>
+            {
+                SetFunc = value => $"{value:#,###}",
+                GetFunc = text =>
+                {
+                    if (String.IsNullOrWhiteSpace(text)) return null;
+                    return int.TryParse(text.Replace(",", "").TrimEnd(), out var result)
+                        ? result
+                        : null;
+                },
+            };
+
+        // public static Converter<decimal> DecimalConverter = new Converter<decimal>
+        // {
+        //     SetFunc = value => $"{value:P2}",
+        //     GetFunc = text =>
+        //     {
+        //         if (String.IsNullOrWhiteSpace(text)) return 0;
+        //         return Decimal.TryParse(text.Replace("%", "").TrimEnd(), out var result)
+        //             ? result / 100
+        //             : 0;
+        //     },
+        // };
+    }
 
 }
