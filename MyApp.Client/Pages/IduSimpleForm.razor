@@ -54,7 +54,7 @@
  
                     <MudTextField T="string" ReadOnly Label="IduCflSingle" @bind-Value="_model.IduCflSingle" For="@(() => _model.IduCflSingle)" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" OnAdornmentClick="OnAdornmentClickIduCflSingle" Clearable />
 
-                    <MudTextField T="string" ReadOnly Label="IduCflMulti" @bind-Value="_model.IduCflMulti_" For="@(() => _model.IduCflMulti_)" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" OnAdornmentClick="OnAdornmentClickIduCflSingle" Clearable />
+                    <MudTextField T="string" ReadOnly Label="IduCflMulti" @bind-Value="_model.IduCflMulti_" For="@(() => _model.IduCflMulti_)" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" OnAdornmentClick="OnAdornmentClickIduCflMulti" Clearable />
 
                 
                 </MudCardContent>
@@ -74,11 +74,7 @@
 
 @code {
 
-    private void OnAdornmentClickIduCflSingle()
-    { 
-        Snackbar.Add("OnAdornmentClickIduCflSingle!");
-        _model.IduCflSingle = "123";
-    }
+   
 
     [Inject] ISnackbar Snackbar { get; set; }
 
@@ -104,6 +100,7 @@
             RuleFor(x => x.IduRadio).NotEmpty(); 
             RuleFor(x => x.IduCflSingle).NotEmpty();
             RuleFor(x => x.IduCflMulti).NotEmpty();
+            RuleFor(x => x.IduCflMulti_).NotEmpty();
 
             RuleFor(x => x.IduSelectMulti).Must((parent, property) => property.Contains("C01"))
             .WithMessage("C01 not found in those names!").NotEmpty();
@@ -156,6 +153,19 @@
 
         return $"{string.Join(", ", texts.Select(x => x))}";
     }
+
+    private void OnAdornmentClickIduCflSingle()
+    {
+        Snackbar.Add("OnAdornmentClickIduCflSingle!");
+        _model.IduCflSingle = "C01";
+    }
+
+    private void OnAdornmentClickIduCflMulti()
+    {
+        Snackbar.Add("OnAdornmentClickIduCflMulti!");
+        _model.IduCflMulti_ = "C01, C02";
+    }
+
 
     #endregion
 
