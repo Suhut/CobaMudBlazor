@@ -1,0 +1,38 @@
+﻿@page "/idu-datagrid-local"
+
+@using System.Net.Http.Json
+@inject HttpClient Http
+
+<PageTitle>IDU DataGrid Local</PageTitle>
+
+<MudText Typo="Typo.h3" GutterBottom="true">IDU DataGrid Local</MudText> 
+
+<MudDataGrid Items="@forecasts" FilterMode="DataGridFilterMode.Simple" Filterable="true">
+    <Columns>
+        <PropertyColumn Property="x => x.Date" />
+        <PropertyColumn Property="x => x.TemperatureC" />
+        <PropertyColumn Property="x => x.Summary" />
+        <PropertyColumn Property="x => x.TemperatureF" />
+    </Columns>
+</MudDataGrid> 
+ 
+
+@code { 
+    private IEnumerable<WeatherForecast> forecasts = new List<WeatherForecast>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("sample-data/weather.json");
+    }
+    public class WeatherForecast
+    {
+        public DateTime Date { get; set; }
+
+        public int TemperatureC { get; set; }
+
+        public string? Summary { get; set; }
+
+        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    }
+
+}

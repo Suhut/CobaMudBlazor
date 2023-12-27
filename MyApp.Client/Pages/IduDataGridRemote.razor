@@ -1,0 +1,106 @@
+﻿@page "/idu-datagrid-remote"
+
+@using System.Net.Http.Json
+@using MyApp.Shared
+@inject HttpClient Http
+
+<PageTitle>IDU DataGrid Remote</PageTitle>
+
+<MudText Typo="Typo.h3" GutterBottom="true">IDU DataGrid Remote</MudText>
+
+@* <MudDataGrid @ref="@_mudDataGrid" Items="@forecasts" FilterMode="DataGridFilterMode.ColumnFilterRow" Filterable="true" FilterDefinitions="FilterDefinitions" SortDefinitions="SortDefinitions"> *@
+<MudDataGrid @ref="@_dataGrid" ServerData="LoadGridData" FilterMode="DataGridFilterMode.ColumnFilterRow" Filterable="true" T="WeatherListItemDto">
+    <Columns>
+        <PropertyColumn Property="x => x.Date" />
+        <PropertyColumn Property="x => x.TemperatureC" />
+        <PropertyColumn Property="x => x.Summary" />
+        <PropertyColumn Property="x => x.TemperatureF" />
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="WeatherListDto" />
+    </PagerContent>
+
+</MudDataGrid>
+
+<MudButton ButtonType="ButtonType.Button" Variant="Variant.Filled" Color="Color.Primary" OnClick="OnClickCheck">Check</MudButton>
+
+@code {
+
+    // private List<IFilterDefinition<WeatherForecast>> FilterDefinitions = new List<IFilterDefinition<WeatherForecast>>();
+    // private Dictionary<string, SortDefinition<WeatherForecast>> SortDefinitions = new Dictionary<string, SortDefinition<WeatherForecast>>();
+
+    private async Task OnClickCheck()
+    { 
+        // var test01 = _mudDataGrid.FilterDefinitions.ToList();
+        // foreach(var item in test01)
+        // {
+        //     var columnName = item.Column.PropertyName;
+        //     var opr = item.Operator;
+        //     var value = item.Value;
+             
+        // }
+    }
+
+
+    // MudDataGrid<WeatherForecast> _mudDataGrid;
+
+    private MudDataGrid<WeatherListItemDto>? _dataGrid;
+    private GridDataRequestDto _requestDto = new();
+
+    private async Task<GridData<WeatherListItemDto>> LoadGridData(GridState<WeatherListItemDto> state)
+    {
+        _requestDto.Page = state.Page;
+        _requestDto.PageSize = state.PageSize;
+
+        WeatherListDto apiResponse = await GetWeatherList(_requestDto);
+        GridData<WeatherListItemDto> data = new()
+            {
+                Items = apiResponse.Items,
+                TotalItems = apiResponse.ItemTotalCount
+            };
+
+        return data;
+    }
+
+    private async Task<WeatherListDto> GetWeatherList(GridDataRequestDto requestDto)
+    {
+        return await Http.GetFromJsonAsync<WeatherListDto>("https://localhost:7117/weatherforecast");
+    }
+
+    // // quick filter - filter globally across multiple columns with the same input
+    // private Func<WeatherForecast, bool> _quickFilter => x =>
+    // {
+    //     // if (string.IsNullOrWhiteSpace(_searchString))
+    //     //     return true;
+
+    //     // if (x.Sign.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+    //     //     return true;
+
+    //     // if (x.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+    //     //     return true;
+
+    //     // if ($"{x.Number} {x.Position} {x.Molar}".Contains(_searchString))
+    //     //     return true;
+
+    //     return true;
+    // };
+
+    // private IEnumerable<WeatherForecast> forecasts = new List<WeatherForecast>();
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("https://localhost:7117/weatherforecast");
+    // }
+
+    // public class WeatherForecast
+    // {
+    //     public DateTime Date { get; set; }
+
+    //     public int TemperatureC { get; set; }
+
+    //     public string? Summary { get; set; }
+
+    //     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    // }
+
+}
