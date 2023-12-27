@@ -22,6 +22,11 @@
 
                     <MudTextField Label="IduTextFieldPassword" HelperText="Helper text IduTextFieldEmail" Class="mt-3"
                                   @bind-Value="_model.IduTextFieldPassword" For="@(() => _model.IduTextFieldPassword)" InputType="InputType.Password" />
+
+                    @* <MudTextField T="string" Label="Outlined" Variant="Variant.Outlined" Text="@sampleText" Lines="3" /> *@
+
+                    <MudTextField Label="IduTextFieldMultiline" HelperText="helper text IduTextFieldMultiline"
+                                  @bind-Value="_model.IduTextFieldMultiline" For="@(() => _model.IduTextFieldMultiline)" Lines="5" />
                                    
                     <MudNumericField Converter=@IntConverter.NullableIntConverter Label="IduNumericFieldInt" T="int?" @bind-Value="_model.IduNumericFieldInt" For="@(() => _model.IduNumericFieldInt)" />
 
@@ -82,6 +87,7 @@
             RuleFor(x => x.IduTextField).NotEmpty();
             RuleFor(x => x.IduTextFieldEmail).NotEmpty().EmailAddress();
             RuleFor(x => x.IduTextFieldPassword).NotEmpty();
+            RuleFor(x => x.IduTextFieldMultiline).NotEmpty();
             RuleFor(x => x.IduNumericFieldInt).NotEmpty();
             RuleFor(x => x.IduNumericFieldDecimal).NotEmpty();
             RuleFor(x => x.IduSelectSingle).NotEmpty();
@@ -145,6 +151,8 @@
         public string? IduTextFieldEmail { get; set; }
 
         public string? IduTextFieldPassword { get; set; }
+
+        public string? IduTextFieldMultiline { get; set; }
 
         public int? IduNumericFieldInt { get; set; }
 
