@@ -21,7 +21,8 @@
         </TemplateColumn>
         <PropertyColumn Property="x => x.Tanggal" Format="dd/MM/yyyy"> 
             <EditTemplate>
-                <MudDatePicker Date="context.Item.Tanggal.Date" DateFormat="dd/MM/yyyy" DateChanged="@(d => this.DateChanged(d.Value, context.Item))" />
+                @* <MudDatePicker  Date="context.Item.Tanggal.Date"  DateFormat="dd/MM/yyyy" DateChanged="@(d => this.DateChanged(d.Value, context.Item))" /> *@
+                <MudDatePicker @bind-Date="context.Item.Tanggal" DateFormat="dd/MM/yyyy" For="@(() => context.Item.Tanggal)" />
             </EditTemplate>
         </PropertyColumn>
         <PropertyColumn Property="x => x.TemperatureC" Format="#,###" />
@@ -33,17 +34,17 @@
  
 @code {
 
-    private void DateChanged(DateTime date, Element element)
-    {
-        this.SetDateTime(date, element.Tanggal.TimeOfDay, element);
-    }
+    // private void DateChanged(DateTime date, Element element)
+    // {
+    //     this.SetDateTime(date, element.Tanggal.TimeOfDay, element);
+    // }
      
 
-    private void SetDateTime(DateTime date, TimeSpan time, Element element)
-    {
-        element.Tanggal = new DateTime(date.Year, date.Month, date.Day, time.Hours, time.Minutes, time.Seconds);
+    // private void SetDateTime(DateTime date, TimeSpan time, Element element)
+    // {
+    //     element.Tanggal = new DateTime(date.Year, date.Month, date.Day, time.Hours, time.Minutes, time.Seconds);
          
-    }
+    // }
 
     public void AddItem()
     {
@@ -81,7 +82,7 @@
     public class Element
     {
         [JsonPropertyName("date")]
-        public DateTime Tanggal { get; set; }
+        public DateTime? Tanggal { get; set; }
 
         public int TemperatureC { get; set; }
 

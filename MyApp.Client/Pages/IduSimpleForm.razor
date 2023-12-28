@@ -8,7 +8,7 @@
 @using System.Linq
 @using System.Globalization
 
-<MudForm Model=@_model @ref="@_form" Validation="@(_formValidator.ValidateValue)"> 
+<MudForm Model=@_model @ref="@_form" Validation="@(_formValidator.ValidateValue)">
     <MudGrid>
         <MudItem xs="12" sm="12">
             <MudCard>
@@ -21,17 +21,22 @@
                                   @bind-Value="_model.IduTextFieldEmail" For="@(() => _model.IduTextFieldEmail)" />
 
                     <MudTextField Label="IduTextFieldPassword" HelperText="Helper text IduTextFieldEmail" Class="mt-3"
-                                  @bind-Value="_model.IduTextFieldPassword" For="@(() => _model.IduTextFieldPassword)" InputType="InputType.Password" /> 
+                                  @bind-Value="_model.IduTextFieldPassword" For="@(() => _model.IduTextFieldPassword)" InputType="InputType.Password" />
 
                     <MudTextField Label="IduTextFieldMultiline" HelperText="helper text IduTextFieldMultiline"
                                   @bind-Value="_model.IduTextFieldMultiline" For="@(() => _model.IduTextFieldMultiline)" Lines="5" />
-                                   
+
                     <MudNumericField Converter=@IntConverter.NullableIntConverter Label="IduNumericFieldInt" T="int?" @bind-Value="_model.IduNumericFieldInt" For="@(() => _model.IduNumericFieldInt)" />
 
                     <MudNumericField Label="IduNumericFieldDecimal" Format="#,###.00" T="decimal?" @bind-Value="_model.IduNumericFieldDecimal" For="@(() => _model.IduNumericFieldDecimal)" />
 
+                    <MudDatePicker Label="IduDatePicker" DateFormat="dd/MM/yyyy" @bind-Date="_model.IduDatePicker" For="@(() => _model.IduDatePicker)" Clearable />
+                    
+                    <MudTimePicker Label="IduTimePicker" TimeEditMode="TimeEditMode.Normal" TimeFormat="HH:mm" @bind-Time="_model.IduTimePicker" For="@(() => _model.IduTimePicker)" Clearable />
 
-                    <MudSelect T="string" Label="IduSelectSingle" @bind-Value="_model.IduSelectSingle" For="@(() => _model.IduSelectSingle)" Clearable>
+                    <MudDateRangePicker Label="IduDateRangePicker" @bind-DateRange="_model.IduDateRangePicker" Clearable />
+
+                    <MudSelect T="string" Label="IduSelectSingle" @bind-Value="_model.IduSelectSingle" For="@(() => _model.IduSelectSingle)">
                         @foreach (var itemSelect in selectSources)
                         {
                             <MudSelectItem T="string" Value="@(itemSelect.Value)">@itemSelect.Text</MudSelectItem>
@@ -48,22 +53,22 @@
                     <MudRadioGroup Label="IduRadio" T="string" @bind-SelectedOption="_model.IduRadio" For="@(() => _model.IduRadio)">
                         @foreach (var itemSelect in selectSources)
                         {
-                            <MudRadio  Option="@(itemSelect.Value)" >@($"{itemSelect.Value} - {itemSelect.Text}")</MudRadio>
-                        } 
+                            <MudRadio Option="@(itemSelect.Value)">@($"{itemSelect.Value} - {itemSelect.Text}")</MudRadio>
+                        }
                     </MudRadioGroup>
- 
+
                     <MudAutocomplete T="selectModel" ToStringFunc="@(state => state.Text)" For="@(() => _model.IduAutoComplete)" Label="IduAutoComplete" @bind-Value="_model.IduAutoComplete" SearchFunc="@IduAutoCompleteSearch"
-                         ResetValueOnEmptyText 
-                         CoerceText CoerceValue />
+                                     ResetValueOnEmptyText
+                                     CoerceText CoerceValue />
 
                     <MudTextField T="string" ReadOnly Label="IduCflSingle" @bind-Value="_model.IduCflSingle" For="@(() => _model.IduCflSingle)" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" OnAdornmentClick="OnAdornmentClickIduCflSingle" Clearable />
 
                     <MudTextField T="string" ReadOnly Label="IduCflMulti" @bind-Value="_model.IduCflMulti_" For="@(() => _model.IduCflMulti_)" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" OnAdornmentClick="OnAdornmentClickIduCflMulti" Clearable />
 
-                
+
                 </MudCardContent>
                 <MudCardActions>
-                    <MudButton ButtonType="ButtonType.Button" Variant="Variant.Filled" Color="Color.Primary" OnClick="OnClickRegister">Register</MudButton> 
+                    <MudButton ButtonType="ButtonType.Button" Variant="Variant.Filled" Color="Color.Primary" OnClick="OnClickRegister">Register</MudButton>
                 </MudCardActions>
             </MudCard>
         </MudItem>
@@ -83,8 +88,8 @@
     [Inject] ISnackbar Snackbar { get; set; }
 
     MudForm _form;
-    SimpleFormModel _model = new();
-    FormFluentValidator _formValidator = new(); 
+    SimpleFormModel _model = new SimpleFormModel { IduTextField = "test123", IduDatePicker = DateTime.Now.Date, IduTimePicker = DateTime.Now.TimeOfDay };
+    FormFluentValidator _formValidator = new();
 
     #region FormValidator
 
@@ -99,17 +104,20 @@
             RuleFor(x => x.IduTextFieldMultiline).NotEmpty();
             RuleFor(x => x.IduNumericFieldInt).NotEmpty();
             RuleFor(x => x.IduNumericFieldDecimal).NotEmpty();
+            RuleFor(x => x.IduDatePicker).NotEmpty();
+            RuleFor(x => x.IduTimePicker).NotEmpty();
+            RuleFor(x => x.IduDateRangePicker).NotEmpty();
             RuleFor(x => x.IduSelectSingle).NotEmpty();
             RuleFor(x => x.IduSelectMulti).NotEmpty();
             RuleFor(x => x.IduAutoComplete).NotEmpty();
-            RuleFor(x => x.IduRadio).NotEmpty(); 
+            RuleFor(x => x.IduRadio).NotEmpty();
             RuleFor(x => x.IduCflSingle).NotEmpty();
             RuleFor(x => x.IduCflMulti).NotEmpty();
             RuleFor(x => x.IduCflMulti_).NotEmpty();
 
             RuleFor(x => x.IduSelectMulti).Must((parent, property) => property.Contains("C01"))
             .WithMessage("C01 not found in those names!").NotEmpty();
-        } 
+        }
 
         public Func<object, string, Task<IEnumerable<string>>> ValidateValue => async (model, propertyName) =>
         {
@@ -118,7 +126,7 @@
             {
                 nameof(_model.IduSelectMulti_) => nameof(_model.IduSelectMulti),
                 nameof(_model.IduCflMulti) => nameof(_model.IduCflMulti),
-                _ => propertyName 
+                _ => propertyName
             };
 
             var result = await ValidateAsync(ValidationContext<SimpleFormModel>.CreateWithOptions((SimpleFormModel)model, x => x.IncludeProperties(propertyName)));
@@ -133,14 +141,14 @@
     #region Events
 
     private async Task OnClickRegister()
-    { 
+    {
         await _form.Validate();
 
         if (_form.IsValid)
         {
             Snackbar.Add("Submited!");
-        } 
-    } 
+        }
+    }
 
     private string IduSelectMultiMultiSelectionTextFunc(List<string> selectedValues)
     {
@@ -172,9 +180,9 @@
     }
 
     private async Task<IEnumerable<selectModel>> IduAutoCompleteSearch(string value)
-    {   
+    {
         if (string.IsNullOrEmpty(value))
-        { 
+        {
             return selectSources;
         }
         return selectSources.Where(x => x.Text.Contains(value, StringComparison.InvariantCultureIgnoreCase));
@@ -198,6 +206,12 @@
         public int? IduNumericFieldInt { get; set; }
 
         public decimal? IduNumericFieldDecimal { get; set; }
+
+        public DateTime? IduDatePicker { get; set; }
+
+        public TimeSpan? IduTimePicker { get; set; }
+
+        public DateRange? IduDateRangePicker { get; set; }
 
         public string? IduSelectSingle { get; set; }
 
@@ -235,7 +249,7 @@
         public string? Value { get; set; }
         public string? Text { get; set; }
     }
-    #endregion 
+    #endregion
 
 
     public static class IntConverter
