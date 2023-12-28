@@ -1,7 +1,4 @@
-using MudBlazor;
 using MyApp.Shared;
-using System.Linq;
-using System.Xml.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
 

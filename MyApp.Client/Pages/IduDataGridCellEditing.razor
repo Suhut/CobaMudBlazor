@@ -1,0 +1,93 @@
+﻿@page "/idu-datagrid-cellediting-v01"
+
+@using System.Net.Http.Json 
+@using System.Text.Json.Serialization
+@inject HttpClient httpClient
+
+<PageTitle>IDU DataGrid Cell Editing v01</PageTitle>
+
+<MudText Typo="Typo.h3" GutterBottom="true">IDU DataGrid Cell Editing v01</MudText>
+
+<MudButton OnClick="@AddItem" Color="@Color.Success" Class="add-item-btn">Add Item</MudButton>
+
+<MudDataGrid T="Element" Items="@Elements" ReadOnly="false" EditMode="DataGridEditMode.Cell"
+             Bordered="true" Dense="true">
+  
+    <Columns> 
+        <TemplateColumn Title="#" IsEditable=false Sortable="false" CellStyle="text-align: center" HeaderStyle="text-align: center">
+            <CellTemplate>
+                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Delete" OnClick="@(() => RemoveItem(@context.Item))" />
+            </CellTemplate>
+        </TemplateColumn>
+        <PropertyColumn Property="x => x.Tanggal" Format="dd/MM/yyyy"> 
+            <EditTemplate>
+                <MudDatePicker Date="context.Item.Tanggal.Date" DateFormat="dd/MM/yyyy" DateChanged="@(d => this.DateChanged(d.Value, context.Item))" />
+            </EditTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.TemperatureC" Format="#,###" />
+        <PropertyColumn Property="x => x.Summary" />
+        <PropertyColumn Property="x => x.TemperatureF" Format="#,###.00" />
+
+    </Columns>
+</MudDataGrid>
+ 
+@code {
+
+    private void DateChanged(DateTime date, Element element)
+    {
+        this.SetDateTime(date, element.Tanggal.TimeOfDay, element);
+    }
+     
+
+    private void SetDateTime(DateTime date, TimeSpan time, Element element)
+    {
+        element.Tanggal = new DateTime(date.Year, date.Month, date.Day, time.Hours, time.Minutes, time.Seconds);
+         
+    }
+
+    public void AddItem()
+    {
+        Random rnd = new Random();  
+
+        var newItem = new Element { Tanggal = DateTime.Now.Date, Summary = $"add {rnd.Next(1000)}", TemperatureC = rnd.Next(1000) };
+
+        var newList = Elements.ToList();
+        newList.Insert(0, newItem); //first row
+        // newList.Add(newItem); //last row
+
+        Elements = newList;
+    }
+
+    public void RemoveItem(Element item)
+    {
+        var newList = Elements.ToList();
+        newList.Remove(item);
+
+        Elements = newList;
+    }
+
+    private IEnumerable<Element> Elements = new List<Element>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await httpClient.GetFromJsonAsync<List<Element>>("sample-data/weather.json");
+
+        Elements = result.Take(4);
+    }
+
+  
+
+    public class Element
+    {
+        [JsonPropertyName("date")]
+        public DateTime Tanggal { get; set; }
+
+        public int TemperatureC { get; set; }
+
+        public string? Summary { get; set; }
+
+        public decimal? TemperatureF =>   (32.0m +  (TemperatureC / 0.5556m));
+    }
+
+}
