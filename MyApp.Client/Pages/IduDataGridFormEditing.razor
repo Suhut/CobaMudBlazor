@@ -1,0 +1,53 @@
+﻿@page "/idu-datagrid-formediting-v01"
+
+@using System.Net.Http.Json 
+@using System.Text.Json.Serialization
+@inject HttpClient httpClient
+
+<PageTitle>IDU DataGrid Form Editing</PageTitle>
+
+<MudText Typo="Typo.h3" GutterBottom="true">IDU DataGrid Form Editing</MudText>
+
+<MudDataGrid T="Element" Items="@Elements.Take(4)" ReadOnly="false" EditMode="@(DataGridEditMode.Form)"
+              
+             Bordered="true" Dense="true" EditTrigger="@(DataGridEditTrigger.Manual)">
+    <Columns> 
+        <PropertyColumn Property="x => x.Tanggal" Format="dd/MM/yyyy">
+            <EditTemplate> 
+                <MudDatePicker @bind-Date="context.Item.Tanggal" DateFormat="dd/MM/yyyy" For="@(() => context.Item.Tanggal)" />
+            </EditTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.TemperatureC" Format="#,###.00" />
+        <PropertyColumn Property="x => x.Summary" />
+        <PropertyColumn Property="x => x.TemperatureF" Format="#,###.00" /> 
+        <TemplateColumn CellClass="d-flex justify-end">
+            <CellTemplate>
+                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItemAsync" />
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+</MudDataGrid> 
+ 
+
+@code { 
+   
+    private IEnumerable<Element> Elements = new List<Element>();  
+
+    protected override async Task OnInitializedAsync()
+    {
+        Elements = await httpClient.GetFromJsonAsync<List<Element>>("sample-data/weather.json");
+    } 
+
+    public class Element
+    {
+        [JsonPropertyName("date")]
+        public DateTime? Tanggal { get; set; }
+
+        public int TemperatureC { get; set; }
+
+        public string? Summary { get; set; }
+
+        public decimal? TemperatureF =>   (32.0m +  (TemperatureC / 0.5556m));
+    }
+
+}
