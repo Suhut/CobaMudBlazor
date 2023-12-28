@@ -26,7 +26,7 @@
                     <MudTextField Label="IduTextFieldMultiline" HelperText="helper text IduTextFieldMultiline"
                                   @bind-Value="_model.IduTextFieldMultiline" For="@(() => _model.IduTextFieldMultiline)" Lines="5" />
 
-                    <MudNumericField Converter=@IntConverter.NullableIntConverter Label="IduNumericFieldInt" T="int?" @bind-Value="_model.IduNumericFieldInt" For="@(() => _model.IduNumericFieldInt)" />
+                    <MudNumericField Converter=@IntConverter.NullableIntConverter  Label="IduNumericFieldInt" T="int?" @bind-Value="_model.IduNumericFieldInt" For="@(() => _model.IduNumericFieldInt)" />
 
                     <MudNumericField Label="IduNumericFieldDecimal" Format="#,###.00" T="decimal?" @bind-Value="_model.IduNumericFieldDecimal" For="@(() => _model.IduNumericFieldDecimal)" />
 
