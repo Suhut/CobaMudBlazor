@@ -8,7 +8,8 @@
 
 <MudText Typo="Typo.h3" GutterBottom="true">IDU DataGrid Form Editing</MudText>
 
-<MudDataGrid T="Element" Items="@Elements.Take(4)" ReadOnly="false" EditMode="@(DataGridEditMode.Form)"
+<MudButton OnClick="AddItem" Color="@Color.Success" Class="add-item-btn">Add Item</MudButton>
+<MudDataGrid @ref=_mudDataGrid T="Element" Items="@Elements.Take(4)" ReadOnly="false" EditMode="@(DataGridEditMode.Form)"
               
              Bordered="true" Dense="true" EditTrigger="@(DataGridEditTrigger.Manual)">
     <Columns> 
@@ -22,15 +23,22 @@
         <PropertyColumn Property="x => x.TemperatureF" Format="#,###.00" /> 
         <TemplateColumn CellClass="d-flex justify-end">
             <CellTemplate>
-                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItemAsync" />
+                <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" OnClick="@context.Actions.StartEditingItemAsync" /> 
             </CellTemplate>
         </TemplateColumn>
     </Columns>
 </MudDataGrid> 
  
 
-@code { 
-   
+@code {
+    MudDataGrid<Element> _mudDataGrid; 
+
+    public void AddItem()
+    {
+        
+    }
+
+
     private IEnumerable<Element> Elements = new List<Element>();  
 
     protected override async Task OnInitializedAsync()

@@ -1,0 +1,71 @@
+﻿
+@using System.ComponentModel.DataAnnotations
+@using FluentValidation
+
+<MudDialog>
+    <DialogContent> 
+
+        <MudForm Model=@Element @ref="@_form" Validation="@(_formValidator.ValidateValue)">
+            <MudDatePicker Label="Tanggal" DateFormat="dd/MM/yyyy" @bind-Date="Element.Tanggal" For="@(() => Element.Tanggal)" Clearable />
+
+            <MudNumericField Label="TemperatureC" T="int?" @bind-Value="Element.TemperatureC" For="@(() => Element.TemperatureC)" />
+
+            <MudTextField Label="Summary" 
+                          @bind-Value="Element.Summary" For="@(() => Element.Summary)" />
+
+            <MudNumericField Label="TemperatureF" ReadOnly Format="#,###.00" T="decimal?" Value="Element.TemperatureF" /> 
+
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Save</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } 
+
+    [Parameter] public DataGridCustomFormEditingModel Element { get; set; }
+
+    MudForm _form;
+
+    async Task Submit() {
+        await _form.Validate(); 
+        if (_form.IsValid)
+        {
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+
+      
+    }
+    void Cancel() => MudDialog.Cancel();
+
+    FormFluentValidator _formValidator = new();
+    public class FormFluentValidator : AbstractValidator<DataGridCustomFormEditingModel>
+    {
+        public FormFluentValidator()
+        {
+
+            RuleFor(x => x.Tanggal).NotEmpty(); 
+            RuleFor(x => x.TemperatureC).NotEmpty();
+            RuleFor(x => x.Summary).NotEmpty();
+            // RuleFor(x => x.TemperatureF).NotEmpty(); 
+        } 
+
+      public Func<object, string, Task<IEnumerable<string>>> ValidateValue => async (model, propertyName) =>
+       { 
+           // propertyName = propertyName switch
+           // { 
+           //     _ => propertyName
+           // };
+
+             var result = await ValidateAsync(ValidationContext<DataGridCustomFormEditingModel>.CreateWithOptions((DataGridCustomFormEditingModel)model, x => x.IncludeProperties(propertyName)));
+           if (result.IsValid)
+               return Array.Empty<string>();
+           return result.Errors.Select(e => e.ErrorMessage);
+       };
+    }
+
+} 
+}
