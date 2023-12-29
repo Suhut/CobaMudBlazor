@@ -35,7 +35,7 @@
 
     public void AddItem()
     {
-        
+        _mudDataGrid.SetEditingItemAsync(new Element());
     }
 
 
@@ -43,7 +43,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Elements = await httpClient.GetFromJsonAsync<List<Element>>("sample-data/weather.json");
+        var result = await httpClient.GetFromJsonAsync<List<Element>>("sample-data/weather.json");
+        Elements = result.Take(4);
     } 
 
     public class Element
