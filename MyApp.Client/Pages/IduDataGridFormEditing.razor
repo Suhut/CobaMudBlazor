@@ -15,7 +15,7 @@
     <Columns> 
         <PropertyColumn Property="x => x.Tanggal" Format="dd/MM/yyyy">
             <EditTemplate> 
-                <MudDatePicker @bind-Date="context.Item.Tanggal" DateFormat="dd/MM/yyyy" For="@(() => context.Item.Tanggal)" />
+                <MudDatePicker @bind-Date="context.Item.Tanggal" DateFormat="dd/MM/yyyy" For="@(() => context.Item.Tanggal)" Variant="Variant.Outlined" />
             </EditTemplate>
         </PropertyColumn>
         <PropertyColumn Property="x => x.TemperatureC" Format="#,###.00" />
