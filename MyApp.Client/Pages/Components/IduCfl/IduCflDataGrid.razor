@@ -14,10 +14,10 @@
         }
         <MudDataGrid T="WeatherListItemDto"
                      @ref=@_dataGrid
-                     ServerData="@(new Func<GridState<WeatherListItemDto>, Task<GridData<WeatherListItemDto>>>(ServerReload))"
+                     ServerData="@FuncServerReload"
                      SortMode="@_sortMode"
                      Filterable
-                     FilterMode="DataGridFilterMode.Simple" 
+                     FilterMode="DataGridFilterMode.Simple"
                      SelectedItemsChanged="SelectedItemsChanged">
 
             <Columns>
@@ -32,7 +32,7 @@
                 }
                 else
                 {
-                    <SelectColumn T="WeatherListItemDto" />
+                    <SelectColumn T="WeatherListItemDto" ShowInFooter=false />
                 }
 
                 <PropertyColumn Property="x => x.Date" />
@@ -42,43 +42,18 @@
             </Columns>
             <PagerContent>
                 <MudDataGridPager T="WeatherListItemDto" />
+
             </PagerContent>
+
         </MudDataGrid>
     </DialogContent>
 </MudDialog>
 
 @code {
-    // protected override async Task OnInitializedAsync()
-    // {
 
-    // }
-    // protected override async Task OnAfterRenderAsync(bool firstRender)
-    // {
+    private MudDataGrid<WeatherListItemDto> _dataGrid { get; set; }   
 
-    //     if (_changeDataSource)
-    //     {
-    //         _changeDataSource = false;
-    //         var currentList = _currentList.ToList() ?? [];
-    //         var temps = from t0 in currentList.ToList()
-    //                     where _allCheckList.Any(t0_ => t0.Summary == t0_.Summary)
-    //                     select t0;
-    //         _dataGrid.Selection = temps.ToHashSet();
-    //         _selectedItems = temps.ToHashSet();
-    //         // StateHasChanged();
-    //     }
-
-
-    // }
-
-    private MudDataGrid<WeatherListItemDto> _dataGrid { get; set; }
-
-    private HashSet<WeatherListItemDto> _currentList { get; set; }
-
-    private List<WeatherListItemDto> _allCheckList { get; set; }
-
-    private HashSet<WeatherListItemDto> _selectedItems { get; set; } = [];
-
-    private bool _changeDataSource = false;
+    private List<WeatherListItemDto> _allCheckList { get; set; } = []; 
 
     [Parameter]
     public string ChooseType { get; set; }
@@ -188,41 +163,30 @@
 
     }
 
+    public Task<GridData<WeatherListItemDto>> FuncServerReload(GridState<WeatherListItemDto> gridState)
+    {
+        return ServerReload(gridState);
+    }
+
     private async Task<GridData<WeatherListItemDto>> ServerReload(GridState<WeatherListItemDto> state)
     {
-
         if (state.SortDefinitions.Any())
         {
             foreach (var item in state.SortDefinitions)
             {
                 SortInfo = SortInfo + item.SortBy.ToString() + ' ' + item.Descending.ToString() + " ";
             }
-        }
-
-
+        } 
 
         // GridDataRequestDto requestDto = new GridDataRequestDto { Page = state.Page, PageSize = state.PageSize };
         var result = await GetWeatherList(state);
-        _currentList = result.Items.ToHashSet();
-        _changeDataSource = true;
-        // StateHasChanged();
+        var items = result.Items; 
+        var temps = (from t0 in items
+                     where _allCheckList.Any(t0_ => t0.Summary == t0_.Summary)
+                     select t0); 
+        _dataGrid.Selection = temps.ToHashSet();
 
-        var currentList = _currentList.ToList() ?? [];
-        var temps = from t0 in currentList.ToList()
-                    where _allCheckList.Any(t0_ => t0.Summary == t0_.Summary)
-                    select t0;
-        // _dataGrid.Selection = temps.ToHashSet();
-        // if ((temps?.Count()??0)>0)
-        // {
-        //     _selectedItems = temps.ToHashSet();
-        // }
-        // else
-        // {
-        //     _selectedItems = [];
-        // }
-
-
-        return new GridData<WeatherListItemDto> { TotalItems = result.ItemTotalCount, Items = result.Items };
+        return new GridData<WeatherListItemDto> { TotalItems = result.ItemTotalCount, Items = items };
     }
 
 
