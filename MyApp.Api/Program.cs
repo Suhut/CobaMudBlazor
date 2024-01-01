@@ -95,7 +95,7 @@ app.MapPost("/weatherforecastv03", (GridDataRequestDtov03 request) =>
         {
             Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
             TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = summaries[Random.Shared.Next(summaries.Length)]
+            Summary = $"Summary{index:00#}"
         }
         )
         .ToList();

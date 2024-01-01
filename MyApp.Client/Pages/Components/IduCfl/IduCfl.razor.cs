@@ -45,10 +45,12 @@ public partial class IduCfl
                    ).ToList();
 
                 BindingValue = $"{string.Join(", ", texts.Select(x => x))}";
+                await _textField.Validate();
             }
         }
     }
 
+    private MudTextField<String> _textField { get; set; }
 
     [Parameter]
     public string ChooseType { get; set; }
