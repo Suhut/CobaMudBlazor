@@ -7,6 +7,7 @@
 @using FluentValidation
 @using System.Linq
 @using System.Globalization
+@using MyApp.Client.Pages.Components.IduCfl
 
 <MudForm Model=@_model @ref="@_form" Validation="@(_formValidator.ValidateValue)">
     <MudGrid>
@@ -61,10 +62,15 @@
                                      ResetValueOnEmptyText
                                      CoerceText CoerceValue />
 
-                    <MudTextField T="string" ReadOnly Label="IduCflSingle" @bind-Value="_model.IduCflSingle" For="@(() => _model.IduCflSingle)" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" OnAdornmentClick="OnAdornmentClickIduCflSingle" Clearable />
+                    @* <MudTextField T="string" ReadOnly Label="IduCflSingle" @bind-Value="_model.IduCflSingle" For="@(() => _model.IduCflSingle)" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" OnAdornmentClick="OnAdornmentClickIduCflSingle" Clearable /> *@
 
-                    <MudTextField T="string" ReadOnly Label="IduCflMulti" @bind-Value="_model.IduCflMulti_" For="@(() => _model.IduCflMulti_)" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" OnAdornmentClick="OnAdornmentClickIduCflMulti" Clearable />
+                    <IduCfl ChooseType="Single" @bind-BindingValue=@(_model.IduCflSingle01) For="@(() => _model.IduCflSingle01)" Label="IduCflSingle01"/>
 
+                    <IduCfl ChooseType="Single"  @bind-BindingValue=@(_model.IduCflSingle02) For="@(() => _model.IduCflSingle02)" Label="IduCflSingle02" />
+
+                    @* <MudTextField T="string" ReadOnly Label="IduCflMulti" @bind-Value="_model.IduCflMulti_" For="@(() => _model.IduCflMulti_)" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" OnAdornmentClick="OnAdornmentClickIduCflMulti" Clearable /> *@
+                       
+                    <IduCfl ChooseType="Multi"  @bind-BindingValue=@(_model.IduCflMulti_) For="@(() => _model.IduCflMulti_)" Label="IduCflMulti" />
 
                 </MudCardContent>
                 <MudCardActions>
@@ -111,7 +117,8 @@
             RuleFor(x => x.IduSelectMulti).NotEmpty();
             RuleFor(x => x.IduAutoComplete).NotEmpty();
             RuleFor(x => x.IduRadio).NotEmpty();
-            RuleFor(x => x.IduCflSingle).NotEmpty();
+            RuleFor(x => x.IduCflSingle01).NotEmpty();
+            RuleFor(x => x.IduCflSingle02).NotEmpty();
             RuleFor(x => x.IduCflMulti).NotEmpty();
             RuleFor(x => x.IduCflMulti_).NotEmpty();
 
@@ -167,16 +174,16 @@
         return $"{string.Join(", ", texts.Select(x => x))}";
     }
 
-    private void OnAdornmentClickIduCflSingle()
-    {
-        Snackbar.Add("OnAdornmentClickIduCflSingle!");
-        _model.IduCflSingle = "C01";
-    }
+    // private void OnAdornmentClickIduCflSingle()
+    // {
+    //     Snackbar.Add("OnAdornmentClickIduCflSingle!");
+    //     _model.IduCflSingle = "C01";
+    // }
 
     private void OnAdornmentClickIduCflMulti()
     {
         Snackbar.Add("OnAdornmentClickIduCflMulti!");
-        _model.IduCflMulti_ = "C01, C02";
+        _model.IduCflMulti_ = "C01, C02"; 
     }
 
     private async Task<IEnumerable<selectModel>> IduAutoCompleteSearch(string value)
@@ -223,7 +230,9 @@
 
         public string? IduRadio { get; set; }
 
-        public string? IduCflSingle { get; set; }
+        public string? IduCflSingle01 { get; set; }
+
+        public string? IduCflSingle02 { get; set; }
 
         public string? IduCflMulti_ { get; set; }
 

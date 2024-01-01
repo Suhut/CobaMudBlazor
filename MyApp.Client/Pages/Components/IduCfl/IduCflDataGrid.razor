@@ -1,0 +1,147 @@
+﻿@using System.Net.Http.Json
+@using System.Text.Json.Serialization
+@using MyApp.Shared
+@using System.Text.Json
+@inject HttpClient httpClient
+
+
+<MudDialog ClassContent="overflow-auto">
+    <DialogContent>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        @if (ChooseType == "Multi")
+        {
+            <MudButton Color="Color.Primary" OnClick="Submit">Choose</MudButton>
+        }
+        <MudDataGrid T="WeatherListItemDto"
+                     @ref=@_dataGrid
+                     ServerData="@(new Func<GridState<WeatherListItemDto>, Task<GridData<WeatherListItemDto>>>(ServerReload))"
+                     SortMode="@_sortMode"
+                     Filterable
+                     FilterMode="DataGridFilterMode.Simple" 
+                     SelectedItems="@_SelectItems">
+
+            <Columns>
+
+                @if (ChooseType != "Multi")
+                {
+                    <TemplateColumn CellClass="d-flex justify-end" Sortable="false" Filterable="false">
+                        <CellTemplate>
+                            <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.CheckCircle" OnClick="@(() => ChooseItem(@context.Item))" />
+                        </CellTemplate>
+                    </TemplateColumn>
+                }
+                else
+                {
+                    <SelectColumn T="WeatherListItemDto" />
+                }
+
+                <PropertyColumn Property="x => x.Date" />
+                <PropertyColumn Property="x => x.TemperatureC" />
+                <PropertyColumn Property="x => x.Summary" />
+                <PropertyColumn Property="x => x.TemperatureF" />
+            </Columns>
+            <PagerContent>
+                <MudDataGridPager T="WeatherListItemDto" />
+            </PagerContent>
+        </MudDataGrid>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    private MudDataGrid<WeatherListItemDto> _dataGrid { get; set; }
+    private HashSet<WeatherListItemDto> _SelectItems { get; set; }
+
+    [Parameter]
+    public string ChooseType { get; set; }
+
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+
+    MudForm _form;
+
+    async Task Submit()
+    {
+        List<WeatherListItemDto> list = _dataGrid.Selection.ToList();
+        MudDialog.Close(DialogResult.Ok(list));
+    }
+    void Cancel() => MudDialog.Cancel();
+
+
+    async Task ChooseItem(WeatherListItemDto item)
+    { 
+        var list = new List<WeatherListItemDto> { item };
+        MudDialog.Close(DialogResult.Ok(list));
+    }
+
+
+    //---------------------------------
+
+    private bool _sortNameByLength;
+    private SortMode _sortMode = SortMode.Multiple;
+
+    // custom sort by name length
+    private Func<WeatherListItemDto, object> _sortBy => x =>
+    {
+        // if (_sortNameByLength)
+        //     return x.Date.Length;
+        // else
+        return x.Date;
+    };
+
+    private string SortInfo = string.Empty;
+
+
+    private async Task<WeatherListDto> GetWeatherList(GridState<WeatherListItemDto> state)
+    {
+        GridDataRequestDtov03 requestDto = new();
+        requestDto.PageSize = state.PageSize;
+        requestDto.Page = state.Page;
+        requestDto.SortDefinitions = [];
+        requestDto.FilterDefinitions = [];
+
+        foreach (var item in state.SortDefinitions)
+        {
+            requestDto.SortDefinitions.Add(new GridDataRequestSortDefinitionsv03 { SortBy = item.SortBy, Descending = item.Descending });
+        }
+
+        foreach (var item in state.FilterDefinitions)
+        {
+            requestDto.FilterDefinitions.Add(new GridDataRequestFilterDefinitionsv03 { FieldName = item.Column.PropertyName, Operator = item.Operator, Value = item.Value });
+        }
+
+        var response = await httpClient.PostAsJsonAsync<GridDataRequestDtov03>("https://localhost:7117/weatherforecastv03", requestDto);
+
+        var responseContent = response.Content.ReadAsStringAsync().Result;
+
+        var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+        return System.Text.Json.JsonSerializer.Deserialize<WeatherListDto>(responseContent, options);
+
+    }
+
+    private async Task<GridData<WeatherListItemDto>> ServerReload(GridState<WeatherListItemDto> state)
+    {
+
+        if (state.SortDefinitions.Any())
+        {
+            foreach (var item in state.SortDefinitions)
+            {
+                SortInfo = SortInfo + item.SortBy.ToString() + ' ' + item.Descending.ToString() + " ";
+            }
+        }
+
+        StateHasChanged();
+
+        // GridDataRequestDto requestDto = new GridDataRequestDto { Page = state.Page, PageSize = state.PageSize };
+        var result = await GetWeatherList(state);
+
+        return new GridData<WeatherListItemDto> { TotalItems = result.ItemTotalCount, Items = result.Items };
+    }
+
+
+
+}
+
