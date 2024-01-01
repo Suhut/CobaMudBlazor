@@ -27,12 +27,12 @@
                     <MudTextField Label="IduTextFieldMultiline" HelperText="helper text IduTextFieldMultiline"
                                   @bind-Value="_model.IduTextFieldMultiline" For="@(() => _model.IduTextFieldMultiline)" Lines="5" />
 
-                    <MudNumericField Converter=@IntConverter.NullableIntConverter  Label="IduNumericFieldInt" T="int?" @bind-Value="_model.IduNumericFieldInt" For="@(() => _model.IduNumericFieldInt)" />
+                    <MudNumericField Converter=@IntConverter.NullableIntConverter Label="IduNumericFieldInt" T="int?" @bind-Value="_model.IduNumericFieldInt" For="@(() => _model.IduNumericFieldInt)" />
 
                     <MudNumericField Label="IduNumericFieldDecimal" Format="#,###.00" T="decimal?" @bind-Value="_model.IduNumericFieldDecimal" For="@(() => _model.IduNumericFieldDecimal)" />
 
                     <MudDatePicker Label="IduDatePicker" DateFormat="dd/MM/yyyy" @bind-Date="_model.IduDatePicker" For="@(() => _model.IduDatePicker)" Clearable />
-                    
+
                     <MudTimePicker Label="IduTimePicker" TimeEditMode="TimeEditMode.Normal" TimeFormat="HH:mm" @bind-Time="_model.IduTimePicker" For="@(() => _model.IduTimePicker)" Clearable />
 
                     <MudDateRangePicker Label="IduDateRangePicker" @bind-DateRange="_model.IduDateRangePicker" Clearable />
@@ -64,15 +64,15 @@
 
                     @* <MudTextField T="string" ReadOnly Label="IduCflSingle" @bind-Value="_model.IduCflSingle" For="@(() => _model.IduCflSingle)" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" OnAdornmentClick="OnAdornmentClickIduCflSingle" Clearable /> *@
 
-                    <IduCfl ChooseType="Single" @bind-BindingValue=@(_model.IduCflSingle01) For="@(() => _model.IduCflSingle01)" Label="IduCflSingle01"/>
+                    <IduCfl ChooseType="Single" @bind-BindingValue=@(_model.IduCflSingle01) For="@(() => _model.IduCflSingle01)" Label="IduCflSingle01" />
 
-                    <IduCfl ChooseType="Single"  @bind-BindingValue=@(_model.IduCflSingle02) For="@(() => _model.IduCflSingle02)" Label="IduCflSingle02" />
+                    <IduCfl ChooseType="Single" @bind-BindingValue=@(_model.IduCflSingle02) For="@(() => _model.IduCflSingle02)" Label="IduCflSingle02" />
 
                     @* <MudTextField T="string" ReadOnly Label="IduCflMulti" @bind-Value="_model.IduCflMulti_" For="@(() => _model.IduCflMulti_)" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" OnAdornmentClick="OnAdornmentClickIduCflMulti" Clearable /> *@
-                       
-                    <IduCfl ChooseType="Multi"  @bind-BindingValue=@(_model.IduCflMulti01_) For="@(() => _model.IduCflMulti01_)" Label="IduCflMulti01" />
 
-                    <IduCfl ChooseType="Multi"  @bind-BindingValue=@(_model.IduCflMulti02_) For="@(() => _model.IduCflMulti02_)" Label="IduCflMulti02" />
+                    <IduCfl ChooseType="Multi" @bind-BindingValue=@(_model.IduCflMulti01_) For="@(() => _model.IduCflMulti01_)" Label="IduCflMulti01" />
+
+                    <IduCfl ChooseType="Multi" @bind-BindingValue=@(_model.IduCflMulti02_) For="@(() => _model.IduCflMulti02_)" Label="IduCflMulti02" />
 
                 </MudCardContent>
                 <MudCardActions>
@@ -188,7 +188,7 @@
     // private void OnAdornmentClickIduCflMulti()
     // {
     //     Snackbar.Add("OnAdornmentClickIduCflMulti!");
-    //     _model.IduCflMulti_ = "C01, C02"; 
+    //     _model.IduCflMulti_ = "C01, C02";
     // }
 
     private async Task<IEnumerable<selectModel>> IduAutoCompleteSearch(string value)
