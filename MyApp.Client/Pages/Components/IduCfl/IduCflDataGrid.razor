@@ -18,7 +18,7 @@
                      SortMode="@_sortMode"
                      Filterable
                      FilterMode="DataGridFilterMode.Simple" 
-                     SelectedItems="@_SelectItems">
+                     SelectedItemsChanged="SelectedItemsChanged">
 
             <Columns>
 
@@ -48,8 +48,37 @@
 </MudDialog>
 
 @code {
+    // protected override async Task OnInitializedAsync()
+    // {
+
+    // }
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+
+    //     if (_changeDataSource)
+    //     {
+    //         _changeDataSource = false;
+    //         var currentList = _currentList.ToList() ?? [];
+    //         var temps = from t0 in currentList.ToList()
+    //                     where _allCheckList.Any(t0_ => t0.Summary == t0_.Summary)
+    //                     select t0;
+    //         _dataGrid.Selection = temps.ToHashSet();
+    //         _selectedItems = temps.ToHashSet();
+    //         // StateHasChanged();
+    //     }
+
+
+    // }
+
     private MudDataGrid<WeatherListItemDto> _dataGrid { get; set; }
-    private HashSet<WeatherListItemDto> _SelectItems { get; set; }
+
+    private HashSet<WeatherListItemDto> _currentList { get; set; }
+
+    private List<WeatherListItemDto> _allCheckList { get; set; }
+
+    private HashSet<WeatherListItemDto> _selectedItems { get; set; } = [];
+
+    private bool _changeDataSource = false;
 
     [Parameter]
     public string ChooseType { get; set; }
@@ -68,9 +97,46 @@
 
 
     async Task ChooseItem(WeatherListItemDto item)
-    { 
+    {
         var list = new List<WeatherListItemDto> { item };
         MudDialog.Close(DialogResult.Ok(list));
+    }
+
+
+    async Task SelectedItemsChanged(HashSet<WeatherListItemDto> _)
+    {
+        var currentList = _dataGrid?.ServerItems?.ToList() ?? (_dataGrid?.Items?.ToList() ?? []);
+        var allCheckList = _allCheckList ?? [];
+        var currentCheckList = _dataGrid?.Selection?.ToList() ?? [];
+
+
+
+        //remove : (jika allCheckList ada di currentList) dan tidak ada di currentCheckList
+        {
+            var temps = from t0 in allCheckList
+                        where currentList.Any(t0_ => t0.Summary == t0_.Summary)
+                        select t0;
+            var result = from t0 in temps
+                         where !currentCheckList.Any(t0_ => t0.Summary == t0_.Summary)
+                         select t0;
+
+            allCheckList.RemoveAll(delegate (WeatherListItemDto t0)
+            {
+                return result.Any(t0_ => t0.Summary == t0_.Summary);
+            });
+        }
+
+        //add : jika currentCheckList tidak ada di allCheckList
+        {
+            var result = from t0 in currentCheckList
+                         where !allCheckList.Any(t0_ => t0.Summary == t0_.Summary)
+                         select t0;
+            allCheckList.AddRange(result.ToList());
+        }
+
+        _allCheckList = allCheckList;
+
+
     }
 
 
@@ -133,10 +199,28 @@
             }
         }
 
-        StateHasChanged();
+
 
         // GridDataRequestDto requestDto = new GridDataRequestDto { Page = state.Page, PageSize = state.PageSize };
         var result = await GetWeatherList(state);
+        _currentList = result.Items.ToHashSet();
+        _changeDataSource = true;
+        // StateHasChanged();
+
+        var currentList = _currentList.ToList() ?? [];
+        var temps = from t0 in currentList.ToList()
+                    where _allCheckList.Any(t0_ => t0.Summary == t0_.Summary)
+                    select t0;
+        // _dataGrid.Selection = temps.ToHashSet();
+        // if ((temps?.Count()??0)>0)
+        // {
+        //     _selectedItems = temps.ToHashSet();
+        // }
+        // else
+        // {
+        //     _selectedItems = [];
+        // }
+
 
         return new GridData<WeatherListItemDto> { TotalItems = result.ItemTotalCount, Items = result.Items };
     }

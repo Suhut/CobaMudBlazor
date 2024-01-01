@@ -104,7 +104,7 @@ app.MapPost("/weatherforecastv03", (GridDataRequestDtov03 request) =>
     int pageNumber = request.Page;
     int pageSize = request.PageSize;
 
-    result.Items = items.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+    result.Items = items.Skip((pageNumber) * pageSize).Take(pageSize).ToList();
 
     return result;
 })
