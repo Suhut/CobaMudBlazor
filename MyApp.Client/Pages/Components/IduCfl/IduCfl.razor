@@ -1,8 +1,7 @@
 ﻿@inject IDialogService DialogService
 
-<MudTextField T="string" ReadOnly Label="@Label"
+<MudTextField T="string" ReadOnly Label="@Label" @ref="@_textField"
               @bind-Value="BindingValue" For="For"
-              Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" 
-    OnAdornmentClick="OnAdornmentClickIduCflSingleAsync" Clearable />
+              Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search"
+              OnAdornmentClick="OnAdornmentClickIduCflSingleAsync" Clearable />
 
- 

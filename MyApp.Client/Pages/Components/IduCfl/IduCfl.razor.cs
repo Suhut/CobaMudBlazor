@@ -1,12 +1,4 @@
-﻿//using MudBlazor;
-
-//namespace MyApp.Client.Pages.Components;
-
-//public class IduCfl
-//{
-//}
-
-using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using MyApp.Shared;
 using System.Linq.Expressions;
@@ -16,9 +8,7 @@ namespace MyApp.Client.Pages.Components.IduCfl;
 public partial class IduCfl
 {
     private async Task OnAdornmentClickIduCflSingleAsync()
-    {
-        //DataGridCustomFormEditingModel newElement = new();
-
+    { 
         var parameters = new DialogParameters<IduCflDataGrid>();
         parameters.Add(x => x.ChooseType, ChooseType);
 
