@@ -70,7 +70,9 @@
 
                     @* <MudTextField T="string" ReadOnly Label="IduCflMulti" @bind-Value="_model.IduCflMulti_" For="@(() => _model.IduCflMulti_)" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" OnAdornmentClick="OnAdornmentClickIduCflMulti" Clearable /> *@
                        
-                    <IduCfl ChooseType="Multi"  @bind-BindingValue=@(_model.IduCflMulti_) For="@(() => _model.IduCflMulti_)" Label="IduCflMulti" />
+                    <IduCfl ChooseType="Multi"  @bind-BindingValue=@(_model.IduCflMulti01_) For="@(() => _model.IduCflMulti01_)" Label="IduCflMulti01" />
+
+                    <IduCfl ChooseType="Multi"  @bind-BindingValue=@(_model.IduCflMulti02_) For="@(() => _model.IduCflMulti02_)" Label="IduCflMulti02" />
 
                 </MudCardContent>
                 <MudCardActions>
@@ -119,8 +121,10 @@
             RuleFor(x => x.IduRadio).NotEmpty();
             RuleFor(x => x.IduCflSingle01).NotEmpty();
             RuleFor(x => x.IduCflSingle02).NotEmpty();
-            RuleFor(x => x.IduCflMulti).NotEmpty();
-            RuleFor(x => x.IduCflMulti_).NotEmpty();
+            RuleFor(x => x.IduCflMulti01).NotEmpty();
+            RuleFor(x => x.IduCflMulti01_).NotEmpty();
+            RuleFor(x => x.IduCflMulti02).NotEmpty();
+            RuleFor(x => x.IduCflMulti02_).NotEmpty();
 
             RuleFor(x => x.IduSelectMulti).Must((parent, property) => property.Contains("C01"))
             .WithMessage("C01 not found in those names!").NotEmpty();
@@ -132,7 +136,8 @@
             propertyName = propertyName switch
             {
                 nameof(_model.IduSelectMulti_) => nameof(_model.IduSelectMulti),
-                nameof(_model.IduCflMulti) => nameof(_model.IduCflMulti),
+                nameof(_model.IduCflMulti01) => nameof(_model.IduCflMulti01),
+                nameof(_model.IduCflMulti02) => nameof(_model.IduCflMulti02),
                 _ => propertyName
             };
 
@@ -180,11 +185,11 @@
     //     _model.IduCflSingle = "C01";
     // }
 
-    private void OnAdornmentClickIduCflMulti()
-    {
-        Snackbar.Add("OnAdornmentClickIduCflMulti!");
-        _model.IduCflMulti_ = "C01, C02"; 
-    }
+    // private void OnAdornmentClickIduCflMulti()
+    // {
+    //     Snackbar.Add("OnAdornmentClickIduCflMulti!");
+    //     _model.IduCflMulti_ = "C01, C02"; 
+    // }
 
     private async Task<IEnumerable<selectModel>> IduAutoCompleteSearch(string value)
     {
@@ -234,9 +239,12 @@
 
         public string? IduCflSingle02 { get; set; }
 
-        public string? IduCflMulti_ { get; set; }
+        public string? IduCflMulti01_ { get; set; }
 
-        public IEnumerable<string?> IduCflMulti { get; set; } = Enumerable.Empty<string>();
+        public string? IduCflMulti02_ { get; set; }
+
+        public IEnumerable<string?> IduCflMulti01 { get; set; } = Enumerable.Empty<string>();
+        public IEnumerable<string?> IduCflMulti02 { get; set; } = Enumerable.Empty<string>();
 
     }
 
