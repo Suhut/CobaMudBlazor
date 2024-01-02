@@ -44,7 +44,7 @@ app.MapGet("/weatherforecastv01", () =>
     var items = Enumerable.Range(1, 1000).Select(index =>
         new WeatherListItemDto
         {
-            Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+            Date =  (DateTime.Now.AddDays(index)).Date,
             TemperatureC = Random.Shared.Next(-20, 55),
             Summary = summaries[Random.Shared.Next(summaries.Length)]
         }
@@ -67,7 +67,7 @@ app.MapPost("/weatherforecastv02", (GridDataRequestDto request) =>
     var items = Enumerable.Range(1, 1000).Select(index =>
         new WeatherListItemDto
         {
-            Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+            Date = (DateTime.Now.AddDays(index)).Date,
             TemperatureC = Random.Shared.Next(-20, 55),
             Summary = summaries[Random.Shared.Next(summaries.Length)]
         }
@@ -93,7 +93,7 @@ app.MapPost("/weatherforecastv03", (GridDataRequestDtov03 request) =>
     var items = Enumerable.Range(1, 1000).Select(index =>
         new WeatherListItemDto
         {
-            Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+            Date = (DateTime.Now.AddDays(index)).Date,
             TemperatureC = Random.Shared.Next(-20, 55),
             Summary = $"Summary{index:00#}"
         }

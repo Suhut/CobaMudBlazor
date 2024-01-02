@@ -15,7 +15,9 @@
              ServerData="@(new Func<GridState<WeatherListItemDto>, Task<GridData<WeatherListItemDto>>>(ServerReload))" 
              SortMode="@_sortMode"
              Filterable
-             FilterMode="DataGridFilterMode.Simple">
+             FilterMode="DataGridFilterMode.Simple"
+             FixedHeader="true"
+             Height="calc(100vh - 13rem);">
 
     <Columns>
         <PropertyColumn Property="x => x.Date" />
@@ -58,8 +60,8 @@
         }
 
         foreach (var item in state.FilterDefinitions)
-        { 
-            requestDto.FilterDefinitions.Add(new GridDataRequestFilterDefinitionsv03 { FieldName = item.Column.PropertyName, Operator = item.Operator, Value = item.Value });
+        {  
+            requestDto.FilterDefinitions.Add(new GridDataRequestFilterDefinitionsv03 { Field = item.Column.PropertyName, Operator = item.Operator, Value = item.Value });
         }
 
         var response = await httpClient.PostAsJsonAsync<GridDataRequestDtov03>("https://localhost:7117/weatherforecastv03", requestDto);

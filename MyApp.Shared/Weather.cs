@@ -22,7 +22,7 @@ public class GridDataRequestSortDefinitionsv03
 
 public class GridDataRequestFilterDefinitionsv03
 {
-    public string FieldName { get; set; }
+    public string Field { get; set; }
     public string Operator { get; set; }
     public object Value { get; set; }
 }
@@ -38,8 +38,8 @@ public class WeatherListDto
 
 public class WeatherListItemDto
 {
-    public DateOnly Date { get; set; } 
-    public int TemperatureC { get; set; } 
+    public DateTime? Date { get; set; } 
+    public int? TemperatureC { get; set; } 
     public string? Summary { get; set; } 
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    public int? TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 }
