@@ -182,7 +182,21 @@
                 fieldType = "Enum";
             }
 
-            requestDto.FilterDefinitions.Add(new GridDataRequestFilterDefinitionsv03 { FieldName = item.Column.PropertyName, FieldType = fieldType, Operator = item.Operator, Value = item.Value });
+
+            string value = string.Empty;
+            if (item.Value is not null)
+            {
+                if (item.FieldType.IsDateTime)
+                {
+                    value = ((DateTime)item.Value).ToString("yyyy-MM-dd HH:mm:ss");
+                }
+                else
+                {
+                    value = item.Value.ToString();
+                }
+            }
+
+            requestDto.FilterDefinitions.Add(new GridDataRequestFilterDefinitionsv03 { FieldName = item.Column.PropertyName, FieldType = fieldType, Operator = item.Operator, Value = value });
         }
 
         var response = await httpClient.PostAsJsonAsync<GridDataRequestDtov03>("https://localhost:7117/weatherforecastv03", requestDto);

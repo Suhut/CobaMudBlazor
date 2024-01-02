@@ -12,7 +12,7 @@
 <MudText Typo="Typo.h3" GutterBottom="true">IDU DataGrid Remote v03</MudText>
 
 <MudDataGrid T="WeatherListItemDto"
-             ServerData="@(new Func<GridState<WeatherListItemDto>, Task<GridData<WeatherListItemDto>>>(ServerReload))" 
+             ServerData="@(new Func<GridState<WeatherListItemDto>, Task<GridData<WeatherListItemDto>>>(ServerReload))"
              SortMode="@_sortMode"
              Filterable
              FilterMode="DataGridFilterMode.Simple"
@@ -28,7 +28,7 @@
     <PagerContent>
         <MudDataGridPager T="WeatherListItemDto" />
     </PagerContent>
-</MudDataGrid> 
+</MudDataGrid>
 
 @code {
     private bool _sortNameByLength;
@@ -43,7 +43,7 @@
         return x.Date;
     };
 
-    private string SortInfo = string.Empty; 
+    private string SortInfo = string.Empty;
 
 
     private async Task<WeatherListDto> GetWeatherList(GridState<WeatherListItemDto> state)
@@ -87,7 +87,20 @@
                 fieldType = "Enum";
             }
 
-            requestDto.FilterDefinitions.Add(new GridDataRequestFilterDefinitionsv03 { FieldName = item.Column.PropertyName, FieldType = fieldType, Operator = item.Operator, Value = item.Value });
+            string value = string.Empty;
+            if (item.Value is not null)
+            {
+                if (item.FieldType.IsDateTime)
+                {
+                    value = ((DateTime)item.Value).ToString("yyyy-MM-dd HH:mm:ss");
+                }
+                else
+                {
+                    value = item.Value.ToString();
+                }
+            } 
+            
+            requestDto.FilterDefinitions.Add(new GridDataRequestFilterDefinitionsv03 { FieldName = item.Column.PropertyName, FieldType = fieldType, Operator = item.Operator, Value = value });
         }
 
         var response = await httpClient.PostAsJsonAsync<GridDataRequestDtov03>("https://localhost:7117/weatherforecastv03", requestDto);
@@ -101,10 +114,10 @@
 
         return System.Text.Json.JsonSerializer.Deserialize<WeatherListDto>(responseContent, options);
 
-    } 
+    }
 
     private async Task<GridData<WeatherListItemDto>> ServerReload(GridState<WeatherListItemDto> state)
-    { 
+    {
 
         if (state.SortDefinitions.Any())
         {
@@ -122,7 +135,7 @@
         return new GridData<WeatherListItemDto> { TotalItems = result.ItemTotalCount, Items = result.Items };
     }
 
-   
+
 
 
 

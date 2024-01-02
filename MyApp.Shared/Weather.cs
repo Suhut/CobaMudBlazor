@@ -27,7 +27,7 @@ public class GridDataRequestFilterDefinitionsv03
     public string FieldName { get; set; }
     public string FieldType { get; set; }
     public string Operator { get; set; }
-    public object Value { get; set; }
+    public string Value { get; set; }
 }
 
 public class GridDataRequestUtils03
@@ -70,12 +70,12 @@ public class GridDataRequestUtils03
                 {
                     "contains" => $"{fieldName} LIKE '%{fieldValue}%'",
                     "not contains" => $"NOT({fieldName} LIKE '%{fieldValue}%')",
-                    "equals" => $"{fieldName}='{fieldValue}'",
-                    "not equals" => $"{fieldName}!='{fieldValue}'",
+                    "equals" => $"{fieldName} = '{fieldValue}'",
+                    "not equals" => $"{fieldName} != '{fieldValue}'",
                     "starts with" => $"{fieldName} LIKE '%{fieldValue}'",
                     "ends with" => $"{fieldName} LIKE '{fieldValue}%'",
-                    "is empty" => $"ISNULL({fieldName},'')=''",
-                    "is not empty" => $"ISNULL({fieldName},'')!=''",
+                    "is empty" => $"ISNULL({fieldName},'') = ''",
+                    "is not empty" => $"ISNULL({fieldName},'') != ''",
                     _ => string.Empty
                 };
             }
@@ -83,14 +83,14 @@ public class GridDataRequestUtils03
             {
                 statement = item.Operator switch
                 {
-                    "=" => $"{fieldName}={fieldValue}",
-                    "!=" => $"{fieldName}!={fieldValue}",
-                    ">" => $"{fieldName}>{fieldValue}",
-                    ">=" => $"{fieldName}>={fieldValue}",
-                    "<" => $"{fieldName}<{fieldValue}",
-                    "<=" => $"{fieldName}<={fieldValue}",
-                    "is empty" => $"{fieldName} IS NULL ",
-                    "is not empty" => $"{fieldName} IS NOT NULL ",
+                    "=" => $"{fieldName} = {fieldValue}",
+                    "!=" => $"{fieldName} != {fieldValue}",
+                    ">" => $"{fieldName} > {fieldValue}",
+                    ">=" => $"{fieldName} >= {fieldValue}",
+                    "<" => $"{fieldName} < {fieldValue}",
+                    "<=" => $"{fieldName} <= {fieldValue}",
+                    "is empty" => $"{fieldName} IS NULL",
+                    "is not empty" => $"{fieldName} IS NOT NULL",
                     _ => string.Empty
                 };
             }
@@ -98,14 +98,14 @@ public class GridDataRequestUtils03
             {
                 statement = item.Operator switch
                 {
-                    "is" => $"{fieldName}='{fieldValue}'",
-                    "is not" => $"{fieldName}!='{fieldValue}'",
-                    "is after" => $"{fieldName}>'{fieldValue}'",
-                    "is on or after" => $"{fieldName}>='{fieldValue}'",
-                    "is before" => $"{fieldName}<'{fieldValue}'",
-                    "is on or before" => $"{fieldName}<='{fieldValue}'",
-                    "is empty" => $"{fieldName} IS NULL ",
-                    "is not empty" => $"{fieldName} IS NOT NULL ",
+                    "is" => $"{fieldName} = '{fieldValue}'",
+                    "is not" => $"{fieldName} != '{fieldValue}'",
+                    "is after" => $"{fieldName} > '{fieldValue}'",
+                    "is on or after" => $"{fieldName} >= '{fieldValue}'",
+                    "is before" => $"{fieldName} < '{fieldValue}'",
+                    "is on or before" => $"{fieldName} <= '{fieldValue}'",
+                    "is empty" => $"{fieldName} IS NULL",
+                    "is not empty" => $"{fieldName} IS NOT NULL",
                     _ => string.Empty
                 };
             }
@@ -114,8 +114,8 @@ public class GridDataRequestUtils03
 
                 statement = item.Operator switch
                 {
-                    "equals" => $"{fieldName}='{fieldValue}'",
-                    "not equals" => $"{fieldName}!='{fieldValue}'",
+                    "equals" => $"{fieldName} = '{fieldValue}'",
+                    "not equals" => $"{fieldName} != '{fieldValue}'",
                     _ => string.Empty
                 };
             }
@@ -123,7 +123,7 @@ public class GridDataRequestUtils03
             {
                 statement = item.Operator switch
                 {
-                    "is" => $"{fieldName}={fieldValue}",
+                    "is" => $"{fieldName} = {fieldValue}",
                     _ => string.Empty
                 };
             }
@@ -131,8 +131,8 @@ public class GridDataRequestUtils03
             {
                 statement = item.Operator switch
                 {
-                    "is" => $"{fieldName}={fieldValue}",
-                    "is not" => $"{fieldName}!={fieldValue}",
+                    "is" => $"{fieldName} = '{fieldValue}'",
+                    "is not" => $"{fieldName} != '{fieldValue}'",
                     _ => string.Empty
                 };
             }
@@ -140,7 +140,10 @@ public class GridDataRequestUtils03
 
             if (string.IsNullOrEmpty(statement))
             {
-                result = result.Append(" AND ");
+                if (!string.IsNullOrEmpty(result.ToString()))
+                {
+                    result = result.Append(" AND ");
+                }   
                 result = result.Append(statement);
             }
 
