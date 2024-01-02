@@ -156,7 +156,33 @@
 
         foreach (var item in state.FilterDefinitions)
         {
-            requestDto.FilterDefinitions.Add(new GridDataRequestFilterDefinitionsv03 { Field = item.Column.PropertyName, Operator = item.Operator, Value = item.Value });
+            string fieldType = string.Empty;
+            if (item.FieldType.IsString)
+            {
+                fieldType = "String";
+            }
+            else if (item.FieldType.IsNumber)
+            {
+                fieldType = "Number";
+            }
+            else if (item.FieldType.IsDateTime)
+            {
+                fieldType = "DateTime";
+            }
+            else if (item.FieldType.IsGuid)
+            {
+                fieldType = "Guid";
+            }
+            else if (item.FieldType.IsBoolean)
+            {
+                fieldType = "Boolean";
+            }
+            else if (item.FieldType.IsEnum)
+            {
+                fieldType = "Enum";
+            }
+
+            requestDto.FilterDefinitions.Add(new GridDataRequestFilterDefinitionsv03 { FieldName = item.Column.PropertyName, FieldType = fieldType, Operator = item.Operator, Value = item.Value });
         }
 
         var response = await httpClient.PostAsJsonAsync<GridDataRequestDtov03>("https://localhost:7117/weatherforecastv03", requestDto);
