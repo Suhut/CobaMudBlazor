@@ -65,22 +65,30 @@
 
     MudForm _form;
 
-    async Task Submit()
+    private async Task Submit()
     {
-        List<WeatherListItemDto> list = _dataGrid.Selection.ToList();
+
+        await ReloadChooseData();
+        List<WeatherListItemDto> list = _allCheckList.ToList();
         MudDialog.Close(DialogResult.Ok(list));
     }
     void Cancel() => MudDialog.Cancel();
 
 
-    async Task ChooseItem(WeatherListItemDto item)
+    private async Task ChooseItem(WeatherListItemDto item)
     {
         var list = new List<WeatherListItemDto> { item };
         MudDialog.Close(DialogResult.Ok(list));
     }
 
 
-    async Task SelectedItemsChanged(HashSet<WeatherListItemDto> _)
+    private async Task SelectedItemsChanged(HashSet<WeatherListItemDto> _)
+    {
+        await ReloadChooseData(); 
+    }
+
+    
+    private async Task ReloadChooseData()
     {
         var currentList = _dataGrid?.ServerItems?.ToList() ?? (_dataGrid?.Items?.ToList() ?? []);
         var allCheckList = _allCheckList ?? [];
@@ -111,8 +119,7 @@
             allCheckList.AddRange(result.ToList());
         }
 
-        _allCheckList = allCheckList;
-
+        _allCheckList = allCheckList; 
 
     }
 
@@ -178,7 +185,10 @@
             {
                 SortInfo = SortInfo + item.SortBy.ToString() + ' ' + item.Descending.ToString() + " ";
             }
-        } 
+        }
+
+
+        await ReloadChooseData();
 
         // GridDataRequestDto requestDto = new GridDataRequestDto { Page = state.Page, PageSize = state.PageSize };
         var result = await GetWeatherList(state);
