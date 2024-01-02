@@ -23,7 +23,15 @@ namespace MyApp.UnitTestApi
                     new() { FieldName = "Field02", FieldType = "String", Operator = "contains", Value = "2" }
                 },
                 "Field01 LIKE '%1%' AND Field02 LIKE '%2%'"
-            }
+            }, 
+            new object[]
+            {
+                new List<GridDataRequestFilterDefinitionsv03>
+                {
+                    new() { FieldName = "Field01", FieldType = "String", Operator = "contains", Value = "1'" }
+                },
+                "Field01 LIKE '%1''%'"
+            },
          };
 
         [Theory]
