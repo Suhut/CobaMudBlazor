@@ -32,36 +32,37 @@ public class GridDataRequestFilterDefinitionsv03
 
 public class GridDataRequestUtils03
 {
-    public string SortDefinitionsToSql(GridDataRequestDtov03 request)
+    public string SortDefinitionsToSql(List<GridDataRequestSortDefinitionsv03>? SortDefinitions)
     {
         StringBuilder result = new StringBuilder();
-        foreach (var item in request.SortDefinitions ?? [])
+        foreach (var item in SortDefinitions ?? [])
         {
             var fieldName = item.SortBy;
 
             var statement = item.Descending switch
             {
-                true => $"{fieldName} DESC ",
-                false => $"NOT({fieldName} ASC "
-            }; 
+                true => $"{fieldName} DESC",
+                false => $"{fieldName} ASC"
+            };
 
-            result = result.Append(" AND ");
+            if (!string.IsNullOrEmpty(result.ToString()))
+            {
+                result = result.Append(", ");
+            }
             result = result.Append(statement);
-
-
         }
         return result.ToString();
     }
 
-    public string FilterDefinitionsToSql(GridDataRequestDtov03 request)
+    public string FilterDefinitionsToSql(List<GridDataRequestFilterDefinitionsv03>? FilterDefinitions)
     {
         StringBuilder result = new StringBuilder();
 
-        foreach (var item in request.FilterDefinitions ?? [])
+        foreach (var item in FilterDefinitions ?? [])
         {
             var fieldName = item.FieldName;
             var fieldType = item.FieldType;
-            var fieldValue = item.Value;
+            var fieldValue = item.Value?.Replace("'", "''");
 
             var statement = string.Empty;
             if (fieldType == "String")
@@ -138,12 +139,12 @@ public class GridDataRequestUtils03
             }
 
 
-            if (string.IsNullOrEmpty(statement))
+            if (!string.IsNullOrEmpty(statement))
             {
                 if (!string.IsNullOrEmpty(result.ToString()))
                 {
                     result = result.Append(" AND ");
-                }   
+                }
                 result = result.Append(statement);
             }
 
